@@ -1,0 +1,96 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  --color-bar: #f1ebe1;
+  --color-primary-bg: #c1ceb9;
+  --color-secondary-bg: #d9d9d9;
+  --color-deep-green: #44624a;
+  --color-light-pink: #dd88b4;
+  --color-text-primary: #322f2f;
+  --color-green-secondary: #8ba888;
+  --color-text-secondary: #605959;
+  --color-alert: #be5151;
+  --font-vietnam: "Be Vietnam Pro", sans-serif;
+  --shadow-bold: 0 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* 🌀 Add custom animation utilities */
+@layer utilities {
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    20% {
+      opacity: 0.25;
+      transform: translateY(-8px);
+    }
+    40% {
+      opacity: 0.5;
+      transform: translateY(-6px);
+    }
+    60% {
+      opacity: 0.75;
+      transform: translateY(-4px);
+    }
+    80% {
+      opacity: 0.75;
+      transform: translateY(-2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 1s ease-out forwards;
+  }
+
+  @keyframes fade-right {
+    0% {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    20% {
+      opacity: 0.25;
+      transform: translateX(-8px);
+    }
+    40% {
+      opacity: 0.5;
+      transform: translateX(-6px);
+    }
+    60% {
+      opacity: 0.75;
+      transform: translateX(-4px);
+    }
+    80% {
+      opacity: 0.75;
+      transform: translateX(-2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-fade-right {
+    animation: fade-right 0.6s ease-out forwards;
+  }
+
+  .animate-fade-right-fast {
+    animation: fade-right 0.3s ease-out forwards;
+  }
+}
