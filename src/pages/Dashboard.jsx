@@ -7,14 +7,19 @@ import NavBar from "../components/dashboard/NaxBar";
 import TimeHolder from "../components/dashboard/TimeHolder";
 import generateId from "../lib/math";
 import AlertModal from "../components/Modal";
-import Table from "../components/Table";
-import { FaEye } from "react-icons/fa";
 import { RiResetLeftFill } from "react-icons/ri";
 import { startOfWeek, endOfWeek } from "../lib/date";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { createClient } from "@supabase/supabase-js";
+import { fromIntToDecimalHours } from "../lib/time";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 export default function Dashboard() {
   const [id, setId] = useState(null);
@@ -32,7 +37,7 @@ export default function Dashboard() {
     //**This should be using context and API to get the user */
     async function initData() {
       const staffList = await JSON.parse(localStorage.getItem("staffList"));
-      if (location.state === null) {
+      if (!localStorage.getItem("staffId")) {
         navigate("/");
       } else {
         setStaff(
@@ -41,16 +46,18 @@ export default function Dashboard() {
           })
         );
       }
-      setClockList(
-        JSON.parse(localStorage.getItem("clock")).filter(
-          (clock) => clock.staffId === staffId
-        )
+      const tempClockList = JSON.parse(localStorage.getItem("clock")).filter(
+        (clock) => clock.staffId === staffId
       );
+      setClockList(tempClockList);
     }
-    if (!localStorage.getItem("staffId")) navigate("/");
     initData();
-    setTableClockList(filterClockList());
   }, []);
+
+  useEffect(() => {
+    const tempClockList = filterClockList(clockList);
+    setTableClockList(tempClockList);
+  }, [searchStartDate, searchEndDate, clockList]);
 
   function generateClock() {
     let clockId = generateId();
@@ -142,7 +149,7 @@ export default function Dashboard() {
     }
   }
 
-  function filterClockList() {
+  function filterClockList(clockList) {
     //filter the clocks that have its date within the date range
     return clockList.filter((clock) => {
       const clockDate = dayjs(clock.startTime);
@@ -158,16 +165,9 @@ export default function Dashboard() {
     });
   }
 
-  function handleViewBtnClicked() {
-    console.log(
-      dayjs
-        .utc("15/06/2025", "DD/MM/YYYY")
-        .isSame(dayjs.utc("2025-06-15T23:00:00.000Z"), "day")
-    );
-    setTableClockList(filterClockList());
-    console.log(filterClockList());
-    console.log(searchStartDate);
-    console.log(searchEndDate);
+  function handleResetBtnClicked() {
+    setStartDate(startOfWeek(dayjs()));
+    setEndDate(endOfWeek(dayjs()));
   }
 
   return staff ? (
@@ -202,40 +202,39 @@ export default function Dashboard() {
                   <p>CLOCK IN/OUT HISTORY</p>
                 </div>
                 <div className="flex items-center mb-3 justify-between w-1/3 mx-auto gap-1">
-                  <p>from</p>
+                  <p className="font-vietnam text-sm">from</p>
                   <InputField
                     typeName="regular-input"
                     value={searchStartDate}
                     onChange={(e) => setStartDate(e.target.value)}
                   />
-                  <p>to</p>
+                  <p className="font-vietnam text-sm">to</p>
                   <InputField
                     typeName="regular-input"
                     value={searchEndDate}
                     onChange={(e) => setEndDate(e.target.value)}
                   />
-                  <div className="tooltip" data-tip="view">
-                    <Button
-                      typeName="icon-primary"
-                      onClick={handleViewBtnClicked}
-                    >
-                      <FaEye />
-                    </Button>
-                  </div>
                   <div className="tooltip" data-tip="reset">
-                    <Button typeName="icon-secondary">
+                    <Button
+                      typeName="icon-secondary"
+                      onClick={handleResetBtnClicked}
+                    >
                       <RiResetLeftFill />
                     </Button>
                   </div>
                 </div>
                 <div className="font-vietnam text-xs font-extralight text-text-secondary mb-5 text-center">
                   <p>
-                    <i>*** Required date format: DD/MM/YYYY or D/M/YYYY ***</i>
+                    <i>*** Required date format: DD/MM/YYYY***</i>
                   </p>
                 </div>
-                <div className="overflow-x-auto">
+                <div
+                  className={`overflow-x-auto no-scrollbar transition-all duration-500 ease-in-out ${
+                    tableClockList.length == 0 ? `max-h-10` : `max-h-72`
+                  }`}
+                >
                   {tableClockList.length > 0 ? (
-                    <table className="table table-zebra">
+                    <table className="table table-zebra font-vietnam text-xs text-text-primary">
                       <thead>
                         <tr>
                           <th></th>
@@ -257,7 +256,7 @@ export default function Dashboard() {
                                 {dayjs(clock.startTime).format("HH:mm:ss")}
                               </td>
                               <td>{dayjs(clock.endTime).format("HH:mm:ss")}</td>
-                              <td>{clock.totalHours}</td>
+                              <td>{fromIntToDecimalHours(clock.totalHours)}</td>
                             </tr>
                           );
                         })}
@@ -265,7 +264,7 @@ export default function Dashboard() {
                     </table>
                   ) : (
                     <div className="w-full">
-                      <p className="font-vietnam text-text-secondary text-sm text-center mt-5">
+                      <p className="font-vietnam text-text-secondary text-sm text-center mt-3">
                         No data found
                       </p>
                     </div>
