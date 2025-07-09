@@ -5,7 +5,7 @@ export default function SelectLog() {
   return (
     <div
       onClick={toggle}
-      className="bg-bar rounded-lg shadow-lg px-4 py-2 font-vietnam text-text-primary text-base font-light flex items-center gap-1 justify-center cursor-pointer"
+      className="bg-bar rounded-lg shadow-lg px-4 py-3 font-vietnam text-text-primary text-base font-light flex items-center gap-1 justify-center cursor-pointer"
     >
       {displayed || "Select an option"}
       <FaAngleDown />

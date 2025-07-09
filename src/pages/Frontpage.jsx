@@ -1,6 +1,5 @@
 import Nav from "../components/frontpage/Nav";
 import { Outlet } from "react-router-dom";
-import Staff from "../data/Staff.js";
 
 export default function Frontpage() {
   return (

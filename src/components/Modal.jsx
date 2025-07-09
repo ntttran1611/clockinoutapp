@@ -6,7 +6,6 @@ export default function AlertModal({ id, action, heading, content }) {
       <div className="modal-box font-vietnam">
         <h3 className="font-bold text-lg text-alert flex items-center gap-1">
           <IoAlertCircle className="h-6 w-6" />
-
           {heading}
         </h3>
         <p className="py-4 text-text-primary">{content}</p>
@@ -25,6 +24,23 @@ export default function AlertModal({ id, action, heading, content }) {
           </form>
         </div>
       </div>
+    </dialog>
+  );
+}
+
+export function ErrorModal({ id, heading, content }) {
+  return (
+    <dialog id={id} className="modal">
+      <div className="modal-box font-vietnam">
+        <h3 className="font-bold text-sm text-alert flex items-center gap-1">
+          <IoAlertCircle className="h-6 w-6" />
+          {heading}
+        </h3>
+        <p className="py-4 text-text-primary">{content}</p>
+      </div>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
     </dialog>
   );
 }

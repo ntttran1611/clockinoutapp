@@ -11,15 +11,10 @@ import { RiResetLeftFill } from "react-icons/ri";
 import { startOfWeek, endOfWeek } from "../lib/date";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { createClient } from "@supabase/supabase-js";
 import { fromIntToDecimalHours } from "../lib/time";
+import { useStaff } from "../context/StaffContext";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 export default function Dashboard() {
   const [id, setId] = useState(null);
@@ -33,18 +28,14 @@ export default function Dashboard() {
   const staffId = localStorage.getItem("staffId"); //use location.state || null will cause destructuring from null since
   // null || null = null
   //?? {} means if location.state is null them fallback to an empty object {}
+  const { tempStaff } = useStaff();
   useEffect(() => {
     //**This should be using context and API to get the user */
     async function initData() {
-      const staffList = await JSON.parse(localStorage.getItem("staffList"));
-      if (!localStorage.getItem("staffId")) {
+      if (!tempStaff) {
         navigate("/");
       } else {
-        setStaff(
-          staffList.find((staff) => {
-            return staff.id == staffId;
-          })
-        );
+        setStaff(tempStaff);
       }
       const tempClockList = JSON.parse(localStorage.getItem("clock")).filter(
         (clock) => clock.staffId === staffId
@@ -88,7 +79,7 @@ export default function Dashboard() {
 
     localStorage.setItem("staffList", JSON.stringify(tempAllStaff)); //this stands for updating to the database
 
-    setStaff({ ...staff, isClockIn: true, currentClockId: newTimeRecord.id });
+    //setStaff({ ...staff, isClockIn: true, currentClockId: newTimeRecord.id });
 
     //console.log(staff);
 
@@ -138,7 +129,7 @@ export default function Dashboard() {
         : staff;
     });
     localStorage.setItem("staffList", JSON.stringify(tempAllStaff)); //this stands for updating to the database
-    setStaff({ ...staff, isClockIn: false, currentClockId: null });
+    //setStaff({ ...staff, isClockIn: false, currentClockId: null });
   }
 
   function handleClockBtnClicked() {

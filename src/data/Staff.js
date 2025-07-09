@@ -1,4 +1,4 @@
-const Staff = [
+/*const Staff = [
   {
     id: "123456",
     firstName: "Ivy",
@@ -121,4 +121,41 @@ const Staff = [
   },
 ];
 
-export default Staff;
+//export default Staff;*/
+
+import { supabase } from "../api/SupabaseClient";
+
+export async function getStaffList() {
+  try {
+    const { data, error } = await supabase.from("staff").select();
+    if (error) {
+      console.error("Error fetching data: ", error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Unexpected error: ", err);
+    return null;
+  }
+}
+
+export async function getStaff(id) {
+  try {
+    const { data, error } = await supabase
+      .from("staff")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) {
+      return null;
+    }
+    return data; //use .then() of a Promise since this function takes time to fetch data, will be slower than a line of code calling it from somewhere
+  } catch (err) {
+    //console.error("Unexpected error: ", err);
+    return null;
+  }
+}
+
+export function userLogOut() {}
