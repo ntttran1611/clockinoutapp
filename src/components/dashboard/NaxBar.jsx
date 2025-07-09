@@ -3,9 +3,11 @@ import { FiClock } from "react-icons/fi";
 import { MdLogout } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { RiChatSmile3Line } from "react-icons/ri";
+import { useStaff } from "../../context/StaffContext";
 export default function NavBar({ title }) {
+  const { setStaff } = useStaff();
   function handleLogOut() {
-    localStorage.removeItem("staffId");
+    setStaff(null);
   }
   return (
     <div className="flex p-10 w-full justify-between font-vietnam items-center">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SideBar from "../components/dashboard/SideBar";
 import { Button, InputField } from "../components";
 import dayjs from "dayjs";
@@ -23,7 +23,6 @@ export default function Dashboard() {
   const [searchEndDate, setEndDate] = useState(endOfWeek(dayjs()));
   const [clockList, setClockList] = useState([]);
   const [tableClockList, setTableClockList] = useState([]);
-  const location = useLocation();
   const navigate = useNavigate();
   const staffId = localStorage.getItem("staffId"); //use location.state || null will cause destructuring from null since
   // null || null = null
