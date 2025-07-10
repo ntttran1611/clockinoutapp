@@ -1,8 +1,11 @@
 import { useEffect, useRef } from "react";
-import fromIntToTimeString, { fromIntToDecimalHours } from "../../lib/time";
+import fromIntToTimeString, {
+  fromIntToDecimalHours,
+  getHourDiff,
+} from "../../lib/time";
 import dayjs from "dayjs";
 
-export default function TimeRecord({ startTime, endTime, workingHours }) {
+export default function TimeRecord({ startTime, endTime }) {
   useEffect(() => {
     const intervalCount = setInterval(() => {
       if (timeCounterRef.current && !endTime) {
@@ -37,10 +40,10 @@ export default function TimeRecord({ startTime, endTime, workingHours }) {
   const workingHoursText = (
     <p>
       <strong>Worked for: </strong>
-      {workingHours ? (
+      {endTime ? (
         <span>
-          {fromIntToTimeString(workingHours)},{" "}
-          {fromIntToDecimalHours(workingHours)}h
+          {fromIntToTimeString(dayjs(endTime).diff(startTime))},{" "}
+          {getHourDiff(startTime, endTime)}h
         </span>
       ) : (
         <span ref={timeCounterRef}>00:00:00</span>

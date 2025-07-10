@@ -9,24 +9,20 @@ import {
 } from "../components";
 import { useNavigate } from "react-router-dom";
 import { getStaff } from "../data/Staff.js";
-import { Clock } from "../data/Clock.js";
 import { regexNumber } from "../lib/regex.js";
 import { ErrorModal } from "../components/Modal.jsx";
-import { useStaff } from "../context/StaffContext.jsx";
 
-//db data
-if (!localStorage.getItem("clock"))
-  localStorage.setItem("clock", JSON.stringify(Clock));
-
-localStorage.removeItem("staff");
-localStorage.removeItem("branch");
+//Any code outside a component will run globally (before React components render)
+//console.log("I'm working from the staffLogin");
 
 export default function StaffLogin() {
+  localStorage.removeItem("staff");
+  localStorage.removeItem("branch");
+
   const [staffId, setStaffId] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [branch, setBranch] = useState("hobart");
+  const [branch, setBranch] = useState("Hobart CBD Salon");
   const navigate = useNavigate();
-  const { setStaff } = useStaff();
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -37,8 +33,8 @@ export default function StaffLogin() {
           setLoginError("No ID number found");
           document.getElementById("staffLoginAlert").showModal();
         } else {
-          setStaff(data);
           localStorage.setItem("branch", branch);
+          localStorage.setItem("staff", data.id);
           navigate("/dashboard", { state: {} });
         }
       });
@@ -48,9 +44,8 @@ export default function StaffLogin() {
     }
   }
 
-  function handleSelectValueChange(value, display) {
-    setBranch(value), localStorage.setItem("branchValue", value);
-    localStorage.setItem("branchName", display);
+  function handleSelectValueChange(value) {
+    setBranch(value);
   }
 
   return (
@@ -60,13 +55,11 @@ export default function StaffLogin() {
         <div className="w-1/3 flex justify-center animate-fade-in">
           <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
             <Select
-              onChange={(value, display) =>
-                handleSelectValueChange(value, display)
-              }
+              onChange={(value) => handleSelectValueChange(value)}
               value={
                 localStorage.getItem("branchValue")
                   ? localStorage.getItem("branchValue")
-                  : "hobart"
+                  : "Hobart CBD Salon"
               }
               display={
                 localStorage.getItem("branchName")
@@ -76,9 +69,15 @@ export default function StaffLogin() {
             >
               <SelectLog />
               <SelectDropdown>
-                <SelectOption value="hobart">Hobart CBD Salon</SelectOption>
-                <SelectOption value="kingston">Kingston Salon</SelectOption>
-                <SelectOption value="newtown">New Town Salon</SelectOption>
+                <SelectOption value="Hobart CBD Salon">
+                  Hobart CBD Salon
+                </SelectOption>
+                <SelectOption value="Kingston Salon">
+                  Kingston Salon
+                </SelectOption>
+                <SelectOption value="New Town Salon">
+                  New Town Salon
+                </SelectOption>
               </SelectDropdown>
             </Select>
             <InputField

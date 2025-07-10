@@ -1,3 +1,6 @@
+import dayjs from "dayjs";
+
+//Convert a miliseconds to string format HH:mm:ss
 export default function fromIntToTimeString(totalMiliSeconds) {
   // Convert to hh:mm:ss
   const hours = Math.floor(totalMiliSeconds / (1000 * 60 * 60));
@@ -14,6 +17,12 @@ export default function fromIntToTimeString(totalMiliSeconds) {
   return `${hh}:${mm}:${ss}`; // Output: 03:20:30
 }
 
+//convert miliseconds to hours with two decimal digits
 export function fromIntToDecimalHours(totalMiliSeconds) {
   return (totalMiliSeconds / 3600000).toFixed(2);
+}
+
+//get the difference in hours between two timestamps
+export function getHourDiff(startTime, endTime) {
+  return dayjs(endTime).diff(startTime, "hours", true).toFixed(2);
 }

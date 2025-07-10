@@ -1,128 +1,3 @@
-/*const Staff = [
-  {
-    id: "123456",
-    firstName: "Ivy",
-    lastName: "Tran",
-    payRateCents: 3500,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "987543",
-    firstName: "Nikki",
-    lastName: "Do",
-    payRateCents: 3700,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "342675",
-    firstName: "Philip",
-    lastName: "Tran",
-    payRateCents: 3400,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "654234",
-    firstName: "Hue",
-    lastName: "Tran",
-    payRateCents: 3500,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "765342",
-    firstName: "Ly",
-    lastName: "Le",
-    payRateCents: 4200,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "476123",
-    firstName: "Win",
-    lastName: "Nguyen",
-    payRateCents: 3600,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "934271",
-    firstName: "Tina",
-    lastName: "Lam",
-    payRateCents: 4300,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "325431",
-    firstName: "Loan",
-    lastName: "Ngo",
-    payRateCents: 3200,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "783654",
-    firstName: "Na",
-    lastName: "Ho",
-    payRateCents: 3100,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "893467",
-    firstName: "Khue",
-    lastName: "Tran",
-    payRateCents: 2900,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "984317",
-    firstName: "Quyen",
-    lastName: "Do",
-    payRateCents: 3300,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "321657",
-    firstName: "Phung",
-    lastName: "Nguyen",
-    payRateCents: 2800,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "981245",
-    firstName: "Tuyet",
-    lastName: "Huynh",
-    payRateCents: 3100,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "654123",
-    firstName: "Giang",
-    lastName: "Lai",
-    payRateCents: 2500,
-    isClockIn: false,
-    currentClockId: null,
-  },
-  {
-    id: "762986",
-    firstName: "Lucy",
-    lastName: "Tran",
-    payRateCents: 2900,
-    isClockIn: false,
-    currentClockId: null,
-  },
-];
-
-//export default Staff;*/
-
 import { supabase } from "../api/SupabaseClient";
 
 export async function getStaffList() {
@@ -158,4 +33,28 @@ export async function getStaff(id) {
   }
 }
 
-export function userLogOut() {}
+export async function updateStaff(staff) {
+  try {
+    const { data, error } = await supabase
+      .from("staff")
+      .update({
+        firstName: staff.firstName,
+        lastName: staff.lastName,
+        payRateCents: staff.payRateCents,
+        isClockIn: staff.isClockIn,
+        currentClockId: staff.currentClockId,
+      })
+      .eq("id", staff.id);
+
+    if (error) {
+      //console.error("Error updating data: ", error);
+      alert(error);
+    } else {
+      console.log("Update staff successfully");
+    }
+    return data;
+  } catch (err) {
+    //console.error("Unexpected error: ", err);
+    return null;
+  }
+}

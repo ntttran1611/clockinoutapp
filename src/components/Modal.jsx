@@ -1,10 +1,12 @@
 import { IoAlertCircle } from "react-icons/io5";
 
-export default function AlertModal({ id, action, heading, content }) {
+export default function AlertModal({ id, action, heading, content, color }) {
   return (
     <dialog id={id} className="modal modal-bottom sm:modal-middle">
       <div className="modal-box font-vietnam">
-        <h3 className="font-bold text-lg text-alert flex items-center gap-1">
+        <h3
+          className={`font-bold text-lg text-${color} flex items-center gap-1`}
+        >
           <IoAlertCircle className="h-6 w-6" />
           {heading}
         </h3>
@@ -13,7 +15,7 @@ export default function AlertModal({ id, action, heading, content }) {
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}
             <button
-              className="btn bg-alert text-white font-light font-vietnam mr-2 tracking-wide"
+              className={`btn bg-${color} text-white font-light font-vietnam mr-2 tracking-wide`}
               onClick={action}
             >
               Confirm
