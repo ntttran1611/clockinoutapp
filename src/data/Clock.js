@@ -17,6 +17,27 @@ export async function getClockList(staffId) {
   }
 }
 
+export async function getClockListWithinRange(staffId, start, end) {
+  try {
+    const { data, error } = await supabase
+      .from("clock")
+      .select()
+      .eq("staffId", staffId)
+      .gte("startTime", start)
+      .lte("startTime", end)
+      .order("startTime", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching data: ", error);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.error("Unexpected error: ", err);
+    return null;
+  }
+}
+
 export async function getCurrentClock(currentClockId) {
   try {
     const { data, error } = await supabase

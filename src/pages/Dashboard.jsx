@@ -1,23 +1,33 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SideBar from "../components/dashboard/SideBar";
-import { Button, InputField } from "../components";
+import { Button } from "../components";
 import dayjs from "dayjs";
 import NavBar from "../components/dashboard/NaxBar";
 import TimeHolder from "../components/dashboard/TimeHolder";
 import AlertModal from "../components/Modal";
-import { RiResetLeftFill } from "react-icons/ri";
-import { startOfWeek, endOfWeek } from "../lib/date";
+import { FaEye } from "react-icons/fa";
+import {
+  startOfWeek,
+  endOfWeek,
+  convertToDateObject,
+  dayFormatting,
+  monthFormatting,
+  yearFormatting,
+  convertDateObjToISOString,
+} from "../lib/date";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { fromIntToDecimalHours, getHourDiff } from "../lib/time";
+import { getHourDiff } from "../lib/time";
 import {
   addClock,
   getClockList,
+  getClockListWithinRange,
   getCurrentClock,
   updateClock,
 } from "../data/Clock";
 import { getStaff, updateStaff } from "../data/Staff";
+import DateInputField from "../components/DateInputField";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
@@ -27,21 +37,31 @@ dayjs.extend(customParseFormat);
 
 //TODO:
 //1. The clock must stop immediately after clocking out - DONE
-//2. Filter clocklist directly from the database
+//2. Filter clocklist directly from the database - DONE
 //3. Keep staff staying in the app on refresh - DONE
 //4. Check Total working hours - DONE
-//5. Restrict the date inputs
-//6. Alert the staff that they are about to clock in
+//5. Restrict the date inputs - DONE
+//6. Alert the staff that they are about to clock in - DONE
 //7. Add responsive
 //8. Add isLoading
+//9. Get the current day's clocks - clocks that have the same start date or its end date is null
 
 export default function Dashboard() {
+  const defaultStartOfWeek = convertToDateObject(startOfWeek(dayjs()));
+  const defaultEndOfWeek = convertToDateObject(endOfWeek(dayjs()));
+  const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
+  const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
+  const [startDateStr, setStartDateStr] = useState(
+    startOfWeek(dayjs()).toISOString()
+  );
+  const [endDateStr, setEndDateStr] = useState(
+    endOfWeek(dayjs()).toISOString()
+  );
   const [tempStaff, setStaff] = useState();
-  const [searchStartDate, setStartDate] = useState(startOfWeek(dayjs()));
-  const [searchEndDate, setEndDate] = useState(endOfWeek(dayjs()));
   const [clockList, setClockList] = useState([]);
   const [tableClockList, setTableClockList] = useState([]);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!localStorage.getItem("staff")) {
       navigate("/");
@@ -53,17 +73,18 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    //tempStaff:isClockIn will be changing => this will be updated too
     if (tempStaff) {
       getClockList(tempStaff.id).then((data) => {
         setClockList(data);
       });
+      getClockListWithinRange(tempStaff.id, startDateStr, endDateStr).then(
+        (data) => {
+          setTableClockList(data);
+        }
+      );
     }
   }, [tempStaff]);
-
-  useEffect(() => {
-    const tempClockList = filterClockList(clockList);
-    setTableClockList(tempClockList);
-  }, [searchStartDate, searchEndDate, clockList]);
 
   function handleClockIn() {
     const newTimeRecord = {
@@ -113,25 +134,12 @@ export default function Dashboard() {
     }
   }
 
-  function filterClockList(clockList) {
-    //filter the clocks that have its date within the date range
-    return clockList.filter((clock) => {
-      const clockDate = dayjs(clock.startTime);
-      const start = dayjs(searchStartDate, "DD/MM/YYYY");
-      const end = dayjs(searchEndDate, "DD/MM/YYYY");
-      return (
-        (clockDate.isSame(start, "day") ||
-          clockDate.isSame(end, "day") ||
-          (clockDate.isAfter(start, "day") &&
-            clockDate.isBefore(end, "day"))) &&
-        clock.endTime
-      );
-    });
-  }
-
-  function handleResetBtnClicked() {
-    setStartDate(startOfWeek(dayjs()));
-    setEndDate(endOfWeek(dayjs()));
+  function handleViewBtnClicked() {
+    const start = convertDateObjToISOString(searchStartDate);
+    const end = convertDateObjToISOString(searchEndDate);
+    getClockListWithinRange(tempStaff.id, start, end).then((data) =>
+      setTableClockList(data)
+    );
   }
 
   return tempStaff ? (
@@ -140,7 +148,7 @@ export default function Dashboard() {
         id="clockOutAlert"
         heading="Attention before action"
         content="Are you sure to clock out?"
-        color="alert"
+        color="light-pink"
         action={handleClockOut}
       />
       <AlertModal
@@ -166,36 +174,106 @@ export default function Dashboard() {
               <NavBar title={`Welcome back, ${tempStaff.firstName}!`} />
             </div>
             <div className="basis-5/6">
-              <div className="w-5/6 min-h-60 mx-auto rounded-xl shadow-2xl p-10">
+              <div className="w-5/6 min-h-60 mx-auto rounded-xl shadow-2xl p-10 flex flex-col justify-center items-center">
                 <div className="font-vietnam text-md font-semibold text-text-primary mb-5 text-center">
                   <p>CLOCK IN/OUT HISTORY</p>
                 </div>
-                <div className="flex items-center mb-3 justify-between w-1/3 mx-auto gap-1">
+
+                <div className="flex items-center mb-3 justify-center 2xl:w-1/3 w-5/6 gap-1">
                   <p className="font-vietnam text-sm">from</p>
-                  <InputField
-                    typeName="regular-input"
-                    value={searchStartDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                  <DateInputField
+                    dateObject={searchStartDate}
+                    onDayChange={(e) =>
+                      setStartDate({ ...searchStartDate, day: e.target.value })
+                    }
+                    onMonthChange={(e) =>
+                      setStartDate({
+                        ...searchStartDate,
+                        month: e.target.value,
+                      })
+                    }
+                    onYearChange={(e) =>
+                      setStartDate({ ...searchStartDate, year: e.target.value })
+                    }
+                    dayFormatting={(e) =>
+                      setStartDate({
+                        ...searchStartDate,
+                        day: dayFormatting(
+                          e.target.value,
+                          defaultStartOfWeek.day
+                        ),
+                      })
+                    }
+                    monthFormatting={(e) =>
+                      setStartDate({
+                        ...searchStartDate,
+                        month: monthFormatting(
+                          e.target.value,
+                          defaultStartOfWeek.month
+                        ),
+                      })
+                    }
+                    yearFormatting={(e) =>
+                      setStartDate({
+                        ...searchStartDate,
+                        year: yearFormatting(
+                          e.target.value,
+                          defaultStartOfWeek.year
+                        ),
+                      })
+                    }
                   />
                   <p className="font-vietnam text-sm">to</p>
-                  <InputField
-                    typeName="regular-input"
-                    value={searchEndDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                  <DateInputField
+                    dateObject={searchEndDate}
+                    onDayChange={(e) => {
+                      setEndDate({ ...searchEndDate, day: e.target.value });
+                    }}
+                    onMonthChange={(e) =>
+                      setEndDate({
+                        ...searchEndDate,
+                        month: e.target.value,
+                      })
+                    }
+                    onYearChange={(e) =>
+                      setEndDate({ ...searchEndDate, year: e.target.value })
+                    }
+                    dayFormatting={(e) =>
+                      setEndDate({
+                        ...searchEndDate,
+                        day: dayFormatting(
+                          e.target.value,
+                          defaultEndOfWeek.day
+                        ),
+                      })
+                    }
+                    monthFormatting={(e) =>
+                      setEndDate({
+                        ...searchEndDate,
+                        month: monthFormatting(
+                          e.target.value,
+                          defaultEndOfWeek.month
+                        ),
+                      })
+                    }
+                    yearFormatting={(e) =>
+                      setEndDate({
+                        ...searchEndDate,
+                        year: yearFormatting(
+                          e.target.value,
+                          defaultEndOfWeek.year
+                        ),
+                      })
+                    }
                   />
-                  <div className="tooltip" data-tip="reset">
+                  <div className="tooltip" data-tip="view">
                     <Button
-                      typeName="icon-secondary"
-                      onClick={handleResetBtnClicked}
+                      typeName="icon-primary"
+                      onClick={handleViewBtnClicked}
                     >
-                      <RiResetLeftFill />
+                      <FaEye />
                     </Button>
                   </div>
-                </div>
-                <div className="font-vietnam text-xs font-extralight text-text-secondary mb-5 text-center">
-                  <p>
-                    <i>*** Required date format: DD/MM/YYYY***</i>
-                  </p>
                 </div>
                 <div
                   className={`overflow-y-auto overflow-x-auto no-scrollbar transition-all duration-500 ease-in-out w-full ${
@@ -204,7 +282,7 @@ export default function Dashboard() {
                 >
                   {tableClockList.length > 0 ? (
                     <table className="table table-zebra font-vietnam text-xs text-text-primary">
-                      <thead>
+                      <thead className="text-deep-green">
                         <tr>
                           <th>Clock In Date</th>
                           <th>Clock In At</th>
@@ -225,11 +303,22 @@ export default function Dashboard() {
                                 {dayjs(clock.startTime).format("HH:mm:ss")}
                               </td>
                               <td>
-                                {dayjs(clock.endTime).format("DD/MM/YYYY")}
+                                {clock.endTime
+                                  ? dayjs(clock.endTime).format("DD/MM/YYYY")
+                                  : "Unfinished"}
                               </td>
-                              <td>{dayjs(clock.endTime).format("HH:mm:ss")}</td>
                               <td>
-                                {getHourDiff(clock.startTime, clock.endTime)}h
+                                {clock.endTime
+                                  ? dayjs(clock.endTime).format("HH:mm:ss")
+                                  : "Unfinished"}
+                              </td>
+                              <td>
+                                {clock.endTime
+                                  ? `${getHourDiff(
+                                      clock.startTime,
+                                      clock.endTime
+                                    )}h`
+                                  : "Unfinished"}
                               </td>
                               <td>{clock.branch}</td>
                             </tr>
