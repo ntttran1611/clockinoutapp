@@ -10,23 +10,15 @@ export default function TimeHolder({ timeHolder }) {
       ) : (
         <ul className="max-h-80 overflow-y-auto p-2 no-scrollbar">
           {timeHolder.map(({ id, startTime, endTime, totalHours, staffId }) => {
-            if (
-              dayjs(startTime).format("DD/MM/YYYY") ===
-                dayjs().format("DD/MM/YYYY") ||
-              !endTime
-            ) {
-              return (
-                <li key={id} className="mb-3">
-                  <TimeRecord
-                    startTime={startTime}
-                    endTime={endTime}
-                    workingHours={totalHours}
-                  />
-                </li>
-              );
-            } else {
-              return null;
-            }
+            return (
+              <li key={id} className="mb-3">
+                <TimeRecord
+                  startTime={startTime}
+                  endTime={endTime}
+                  workingHours={totalHours}
+                />
+              </li>
+            );
           })}
         </ul>
       )}

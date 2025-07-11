@@ -24,6 +24,7 @@ import {
   getClockList,
   getClockListWithinRange,
   getCurrentClock,
+  getTodayClockList,
   updateClock,
 } from "../data/Clock";
 import { getStaff, updateStaff } from "../data/Staff";
@@ -51,14 +52,8 @@ export default function Dashboard() {
   const defaultEndOfWeek = convertToDateObject(endOfWeek(dayjs()));
   const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
-  const [startDateStr, setStartDateStr] = useState(
-    startOfWeek(dayjs()).toISOString()
-  );
-  const [endDateStr, setEndDateStr] = useState(
-    endOfWeek(dayjs()).toISOString()
-  );
   const [tempStaff, setStaff] = useState();
-  const [clockList, setClockList] = useState([]);
+  const [todayClockList, setTodayClockList] = useState([]);
   const [tableClockList, setTableClockList] = useState([]);
   const navigate = useNavigate();
 
@@ -75,14 +70,16 @@ export default function Dashboard() {
   useEffect(() => {
     //tempStaff:isClockIn will be changing => this will be updated too
     if (tempStaff) {
-      getClockList(tempStaff.id).then((data) => {
-        setClockList(data);
-      });
-      getClockListWithinRange(tempStaff.id, startDateStr, endDateStr).then(
-        (data) => {
-          setTableClockList(data);
-        }
+      getTodayClockList(tempStaff.id, dayjs()).then((data) =>
+        setTodayClockList(data)
       );
+      getClockListWithinRange(
+        tempStaff.id,
+        convertDateObjToISOString(searchStartDate),
+        convertDateObjToISOString(searchEndDate)
+      ).then((data) => {
+        setTableClockList(data);
+      });
     }
   }, [tempStaff]);
 
@@ -165,7 +162,7 @@ export default function Dashboard() {
               {!tempStaff.isClockIn ? "CLOCK IN" : "CLOCK OUT"}
             </Button>
             {/**Start time or endtime should be dayjs() */}
-            <TimeHolder timeHolder={clockList} />
+            <TimeHolder timeHolder={todayClockList} />
           </SideBar>
         </div>
         <div className="flex-1 h-screen">
