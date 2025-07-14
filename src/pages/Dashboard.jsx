@@ -166,7 +166,7 @@ export default function Dashboard() {
             <TimeHolder timeHolder={todayClockList} />
           </SideBar>
         </div>
-        <div className="flex-1 h-screen">
+        <div className="flex-1 h-screen hidden lg:block">
           <div className="flex flex-col h-full">
             <div className="basis-1/6">
               <NavBar title={`Welcome back, ${tempStaff.firstName}!`} />

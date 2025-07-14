@@ -17,11 +17,14 @@ import { ErrorModal } from "../components/Modal.jsx";
 
 export default function StaffLogin() {
   localStorage.removeItem("staff");
-  localStorage.removeItem("branch");
 
   const [staffId, setStaffId] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [branch, setBranch] = useState("Hobart CBD Salon");
+  const [branch, setBranch] = useState(
+    localStorage.getItem("branch")
+      ? localStorage.getItem("branch")
+      : "Hobart CBD Salon"
+  );
   const navigate = useNavigate();
 
   function handleSubmit(e) {
@@ -46,24 +49,25 @@ export default function StaffLogin() {
 
   function handleSelectValueChange(value) {
     setBranch(value);
+    localStorage.setItem("branch", value);
   }
 
   return (
     <>
       <ErrorModal heading="Error" content={loginError} id="staffLoginAlert" />{" "}
       <div className="flex items-center justify-center h-full">
-        <div className="w-1/3 flex justify-center animate-fade-in">
+        <div className="w-4/5 md:w-1/2 lg:w-1/2 xl:w-1/2 2xl:w-1/3 flex justify-center animate-fade-in">
           <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
             <Select
               onChange={(value) => handleSelectValueChange(value)}
               value={
-                localStorage.getItem("branchValue")
-                  ? localStorage.getItem("branchValue")
+                localStorage.getItem("branch")
+                  ? localStorage.getItem("branch")
                   : "Hobart CBD Salon"
               }
               display={
-                localStorage.getItem("branchName")
-                  ? localStorage.getItem("branchName")
+                localStorage.getItem("branch")
+                  ? localStorage.getItem("branch")
                   : "Hobart CBD Salon"
               }
             >

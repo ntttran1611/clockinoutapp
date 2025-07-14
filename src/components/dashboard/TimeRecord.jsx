@@ -22,14 +22,14 @@ export default function TimeRecord({ startTime, endTime }) {
   const timeCounterRef = useRef(null);
   const clockInText = (
     <p>
-      <strong>Clock in: </strong>
+      <strong>Clock in at: </strong>
       {startTime ? dayjs(startTime).format("HH:mm:ss, DD/MM/YYYY") : ""};
     </p>
   );
 
   const clockOutText = (
     <p>
-      <strong>Clock out: </strong>
+      <strong>Clock out at: </strong>
       {endTime ? (
         dayjs(endTime).format("HH:mm:ss, DD/MM/YYYY")
       ) : (
