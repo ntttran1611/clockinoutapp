@@ -1,5 +1,4 @@
 import TimeRecord from "./TimeRecord";
-import dayjs from "dayjs";
 export default function TimeHolder({ timeHolder }) {
   return (
     <div className="w-full text-center text-text-secondary mt-2 font-vietnam font-extralight text-sm">

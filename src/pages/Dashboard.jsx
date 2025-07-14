@@ -45,7 +45,7 @@ dayjs.extend(customParseFormat);
 //6. Alert the staff that they are about to clock in - DONE
 //7. Add responsive
 //8. Add isLoading
-//9. Get the current day's clocks - clocks that have the same start date or its end date is null
+//9. Get the current day's clocks - clocks that have the same start date or its end date is null - DONE
 
 export default function Dashboard() {
   const defaultStartOfWeek = convertToDateObject(startOfWeek(dayjs()));
@@ -142,19 +142,20 @@ export default function Dashboard() {
   return tempStaff ? (
     <>
       <AlertModal
+        id="clockInAlert"
+        heading="Attention before action"
+        content={`Hi ${tempStaff.firstName}, are you sure to clock in?`}
+        color="light-pink"
+        action={handleClockIn}
+      />
+      <AlertModal
         id="clockOutAlert"
         heading="Attention before action"
-        content="Are you sure to clock out?"
+        content={`Hi ${tempStaff.firstName}, are you sure to clock out?`}
         color="light-pink"
         action={handleClockOut}
       />
-      <AlertModal
-        id="clockInAlert"
-        heading="Attention before action"
-        content="Are you sure to clock in?"
-        color="deep-green"
-        action={handleClockIn}
-      />
+
       <div className="h-screen flex">
         <div>
           <SideBar footer={`ID number: ${tempStaff.id}`}>
@@ -278,7 +279,7 @@ export default function Dashboard() {
                   }`}
                 >
                   {tableClockList.length > 0 ? (
-                    <table className="table table-zebra font-vietnam text-xs text-text-primary">
+                    <table className="table table-zebra font-vietnam text-xs text-text-primary table-pin-rows">
                       <thead className="text-deep-green">
                         <tr>
                           <th>Clock In Date</th>
@@ -337,5 +338,9 @@ export default function Dashboard() {
         </div>
       </div>
     </>
-  ) : null;
+  ) : (
+    <div className="h-screen flex items-center justify-center">
+      <span className="loading loading-spinner loading-xl "></span>
+    </div>
+  );
 }

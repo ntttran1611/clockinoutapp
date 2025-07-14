@@ -23,12 +23,12 @@ export async function getTodayClockList(staffId, today) {
       .from("clock")
       .select()
       .eq("staffId", staffId)
-      .or(`endTime.eq.null, startTime.ilike.%${today.format("YYYY-MM-DD")}%`);
+      .or(`endTime.is.null, startTime.ilike.%${today.format("YYYY-MM-DD")}%`);
     if (error) {
       console.error("Error fetching data: ", error);
       return null;
     }
-    console.log(data);
+    //console.log(data);
     return data;
   } catch (err) {
     console.error("Unexpected error: ", err);
@@ -44,7 +44,7 @@ export async function getClockListWithinRange(staffId, start, end) {
       .eq("staffId", staffId)
       .gte("startTime", start)
       .lte("startTime", end)
-      .order("startTime", { ascending: false });
+      .order("startTime", { ascending: true });
 
     if (error) {
       console.error("Error fetching data: ", error);
