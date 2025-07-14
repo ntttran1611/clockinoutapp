@@ -26,3 +26,15 @@ export function fromIntToDecimalHours(totalMiliSeconds) {
 export function getHourDiff(startTime, endTime) {
   return dayjs(endTime).diff(startTime, "hours", true).toFixed(2);
 }
+
+export function clockSync(displayTime) {
+  const currentTime = dayjs();
+  const msUntilNextSecond = 1000 - currentTime.millisecond();
+
+  //Await until the next full second...
+  setTimeout(() => {
+    displayTime;
+    //...then run every second
+    setInterval(displayTime, 1000);
+  }, msUntilNextSecond);
+}

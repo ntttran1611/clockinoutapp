@@ -43,8 +43,8 @@ dayjs.extend(customParseFormat);
 //4. Check Total working hours - DONE
 //5. Restrict the date inputs - DONE
 //6. Alert the staff that they are about to clock in - DONE
-//7. Add responsive
-//8. Add isLoading
+//7. Add responsive - PARTLY DONE
+//8. Add isLoading - DONE
 //9. Get the current day's clocks - clocks that have the same start date or its end date is null - DONE
 
 export default function Dashboard() {
