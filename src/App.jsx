@@ -4,6 +4,7 @@ import StaffLogin from "./pages/StaffLogin";
 import Dashboard from "./pages/Dashboard";
 import AdminLogin from "./pages/AdminLogin";
 import PageNotFound from "./pages/PageNotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 function App() {
   return (
     <BrowserRouter>
@@ -13,6 +14,7 @@ function App() {
           <Route path="adminlogin" element={<AdminLogin />} />
         </Route>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>

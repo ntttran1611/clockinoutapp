@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SideBar from "../components/dashboard/SideBar";
-import { Button } from "../components";
-import dayjs from "dayjs";
-import NavBar from "../components/dashboard/NaxBar";
-import TimeHolder from "../components/dashboard/TimeHolder";
-import AlertModal from "../components/Modal";
-import { FaEye } from "react-icons/fa";
+import {
+  Button,
+  SideBar,
+  NavBar,
+  TimeHolder,
+  AlertModal,
+  DateInputField,
+} from "../components";
+
 import {
   startOfWeek,
   endOfWeek,
@@ -15,37 +17,28 @@ import {
   monthFormatting,
   yearFormatting,
   convertDateObjToISOString,
-} from "../lib/date";
-import utc from "dayjs/plugin/utc";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import { getHourDiff } from "../lib/time";
+  getHourDiff,
+} from "../lib";
+
 import {
   addClock,
-  getClockList,
   getClockListWithinRange,
   getCurrentClock,
   getTodayClockList,
   updateClock,
-} from "../data/Clock";
-import { getStaff, updateStaff } from "../data/Staff";
-import DateInputField from "../components/DateInputField";
+  getStaff,
+  updateStaff,
+} from "../data";
+import { FaEye } from "react-icons/fa";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
 //const staffId = localStorage.getItem("staffId"); //use location.state || null will cause destructuring from null since
 // null || null = null
 //?? {} means if location.state is null them fallback to an empty object {}
-
-//TODO:
-//1. The clock must stop immediately after clocking out - DONE
-//2. Filter clocklist directly from the database - DONE
-//3. Keep staff staying in the app on refresh - DONE
-//4. Check Total working hours - DONE
-//5. Restrict the date inputs - DONE
-//6. Alert the staff that they are about to clock in - DONE
-//7. Add responsive - PARTLY DONE
-//8. Add isLoading - DONE
-//9. Get the current day's clocks - clocks that have the same start date or its end date is null - DONE
 
 export default function Dashboard() {
   const defaultStartOfWeek = convertToDateObject(startOfWeek(dayjs()));
@@ -156,7 +149,7 @@ export default function Dashboard() {
         action={handleClockOut}
       />
 
-      <div className="h-screen flex">
+      <div className="relative h-screen flex">
         <div>
           <SideBar footer={`ID number: ${tempStaff.id}`}>
             <Button type="" typeName="login" onClick={handleClockBtnClicked}>
