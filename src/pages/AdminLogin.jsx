@@ -1,30 +1,37 @@
 import { useState } from "react";
-import { InputField, Button, Label } from "../components";
+import { InputField, Button, Label, ErrorModal } from "../components";
 import { useNavigate } from "react-router-dom";
-import { ErrorModal } from "../components";
-
-const adminAccount = { username: "123456", password: "sweeties" };
+import { auth, setAccessCookie, setRefreshCookie } from "../auth";
+import { useUser } from "../context/UserContext";
 
 export default function AdminLogin() {
+  localStorage.removeItem("admin");
+  const { setUser } = useUser();
   const [account, setAccount] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
   function handleSubmit(e) {
     e.preventDefault();
-    if (true) {
-      navigate("/admin", { state: {} });
-      localStorage.setItem("userRole", "admin");
-    } else if (account.username === "" || account.password === "") {
+    if (account.username === "" || account.password === "") {
       setLoginError("Username or password required");
-      document.getElementById("adminLoginAlert").showModal();
+      document.getElementById("adminError").showModal();
     } else {
-      setLoginError("Invalid username or password");
-      document.getElementById("adminLoginAlert").showModal();
+      auth(account).then((data) => {
+        if (data) {
+          //console.log(data);
+          setUser(data);
+          setAccessCookie(data), setRefreshCookie(data);
+          navigate("/admin", { state: {} });
+        } else {
+          setLoginError("Invalid username or password");
+          document.getElementById("adminError").showModal();
+        }
+      });
     }
   }
   return (
     <>
-      <ErrorModal heading="Error" content={loginError} id="adminLoginAlert" />
+      <ErrorModal heading="Error" content={loginError} id="adminError" />
       <div className="flex items-center justify-center h-full">
         <div className="w-4/5 md:w-1/2 lg:w-1/2 xl:w-1/2 2xl:w-1/3 flex justify-center animate-fade-in">
           <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>

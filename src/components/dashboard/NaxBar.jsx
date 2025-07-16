@@ -1,14 +1,26 @@
 import dayjs from "dayjs";
 import { FiClock } from "react-icons/fi";
 import { MdLogout } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { RiChatSmile3Line } from "react-icons/ri";
 import { useRef, useEffect } from "react";
 import { clockSync } from "../../lib/time";
+import { useUser } from "../../context/UserContext";
+import { removeCookie, signOut } from "../../auth";
 export default function NavBar({ title }) {
+  const location = useLocation();
+  const isInStaffLogin = location.pathname === "/dashboard";
+  const { setUser } = useUser();
   const clockRef = useRef();
   function handleLogOut() {
-    localStorage.removeItem("staff");
+    if (isInStaffLogin) {
+      localStorage.removeItem("staff");
+    } else {
+      setUser(null);
+      removeCookie("access_token");
+      removeCookie("refresh_token");
+      signOut();
+    }
   }
 
   useEffect(() => {

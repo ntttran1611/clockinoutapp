@@ -1,4 +1,4 @@
-import { supabase } from "../api/SupabaseClient";
+import { supabase } from "../api";
 
 export async function getClockList(staffId) {
   try {

@@ -1,6 +1,6 @@
 import { IoAlertCircle } from "react-icons/io5";
 
-export default function AlertModal({ id, action, heading, content, color }) {
+export function AlertModal({ id, action, heading, content, color }) {
   return (
     <dialog id={id} className="modal modal-bottom sm:modal-middle">
       <div className="modal-box font-vietnam">

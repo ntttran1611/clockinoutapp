@@ -4,7 +4,7 @@
  * 1/ Create a sidebar for the admin page including: clocks, staff, statistics - DONE
  * 2/ Set Routes for these breadcrumbs - DONE
  * 2/ Implement background color of tabs changes as routes changing - DONE
- * 3/ Authentication
+ * 3/ Authentication - DONE
  * 4/ Display clock table
  *
  */
@@ -14,13 +14,21 @@ import { SideBar, NavBar } from "../components";
 import { FaRegClock } from "react-icons/fa";
 import { IoBarChartOutline } from "react-icons/io5";
 import { MdPeopleAlt } from "react-icons/md";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 export default function AdminDashboard() {
-  const [tabOrder, setTabOrder] = useState(1);
+  const navigate = useNavigate();
   const tabRef = useRef();
+  const { tempUser } = useUser();
+  const [tabOrder, setTabOrder] = useState(1);
   const [tabSize, setTabSize] = useState({ height: 0, width: 0 });
   const [tabBgPos, setTabBgPos] = useState(0);
+  useEffect(() => {
+    if (!tempUser) {
+      navigate("/");
+    }
+  }, []);
   useEffect(() => {
     function updateTabSize() {
       if (tabRef.current) {
@@ -36,14 +44,17 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    const tabList = document.getElementById("tabs").children;
-    for (let tab of tabList) {
-      tab.className = "";
+    if (document.getElementById("tabs")) {
+      const tabList = document.getElementById("tabs").children;
+      for (let tab of tabList) {
+        tab.className = "";
+      }
+      document.getElementById(`${tabOrder}`).className =
+        "text-white font-medium";
+      setTabBgPos(tabSize.height * (tabOrder - 1));
     }
-    document.getElementById(`${tabOrder}`).className = "text-white font-medium";
-    setTabBgPos(tabSize.height * (tabOrder - 1));
   }, [tabOrder]);
-  return (
+  return tempUser ? (
     <div className="h-screen flex font-vietnam">
       <SideBar footer="Sweeties Administrator">
         <div id="tabs" className="relative w-full font-light">
@@ -92,6 +103,10 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+    </div>
+  ) : (
+    <div className="h-screen flex items-center justify-center">
+      <span className="loading loading-spinner loading-xl "></span>
     </div>
   );
 }

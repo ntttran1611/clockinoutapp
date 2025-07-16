@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   InputField,
   Select,
@@ -9,8 +9,9 @@ import {
   ErrorModal,
 } from "../components";
 import { useNavigate } from "react-router-dom";
-import { getStaff } from "../data";
+import { getStaff, getStaffList } from "../data";
 import { regexNumber } from "../lib";
+import { test } from "../api";
 
 //Any code outside a component will run globally (before React components render)
 //console.log("I'm working from the staffLogin");
@@ -26,7 +27,6 @@ export default function StaffLogin() {
       : "Hobart CBD Salon"
   );
   const navigate = useNavigate();
-
   function handleSubmit(e) {
     e.preventDefault();
     if (staffId !== "" && regexNumber.test(staffId)) {
@@ -51,7 +51,6 @@ export default function StaffLogin() {
     setBranch(value);
     localStorage.setItem("branch", value);
   }
-
   return (
     <>
       <ErrorModal heading="Error" content={loginError} id="staffLoginAlert" />{" "}

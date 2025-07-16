@@ -1,4 +1,4 @@
-import { supabase } from "../api/SupabaseClient";
+import { supabase } from "../api";
 
 export async function getStaffList() {
   try {
@@ -7,7 +7,6 @@ export async function getStaffList() {
       console.error("Error fetching data: ", error);
       return null;
     }
-
     return data;
   } catch (err) {
     console.error("Unexpected error: ", err);
@@ -24,11 +23,13 @@ export async function getStaff(id) {
       .maybeSingle();
 
     if (error) {
+      console.error("Unexpected error: ", error);
       return null;
     }
+
     return data; //use .then() of a Promise since this function takes time to fetch data, will be slower than a line of code calling it from somewhere
   } catch (err) {
-    //console.error("Unexpected error: ", err);
+    console.error("Unexpected error: ", err);
     return null;
   }
 }
