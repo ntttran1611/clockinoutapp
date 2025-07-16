@@ -138,27 +138,30 @@ export default function Dashboard() {
         id="clockInAlert"
         heading="Attention before action"
         content={`Hi ${tempStaff.firstName}, are you sure to clock in?`}
-        color="light-pink"
+        color="deep-green"
         action={handleClockIn}
       />
       <AlertModal
         id="clockOutAlert"
         heading="Attention before action"
         content={`Hi ${tempStaff.firstName}, are you sure to clock out?`}
-        color="light-pink"
+        color="deep-green"
         action={handleClockOut}
       />
 
       <div className="relative h-screen flex">
-        <div>
-          <SideBar footer={`ID number: ${tempStaff.id}`}>
-            <Button type="" typeName="login" onClick={handleClockBtnClicked}>
+        <SideBar footer={`ID number: ${tempStaff.id}`}>
+          <div className="px-4">
+            <Button
+              type="login"
+              typeName="login"
+              onClick={handleClockBtnClicked}
+            >
               {!tempStaff.isClockIn ? "CLOCK IN" : "CLOCK OUT"}
             </Button>
-            {/**Start time or endtime should be dayjs() */}
             <TimeHolder timeHolder={todayClockList} />
-          </SideBar>
-        </div>
+          </div>
+        </SideBar>
         <div className="flex-1 h-screen hidden lg:block">
           <div className="flex flex-col h-full">
             <div className="basis-1/6">

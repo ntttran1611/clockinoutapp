@@ -6,11 +6,11 @@ import {
   SelectLog,
   SelectDropdown,
   SelectOption,
+  ErrorModal,
 } from "../components";
 import { useNavigate } from "react-router-dom";
-import { getStaff } from "../data/Staff.js";
-import { regexNumber } from "../lib/regex.js";
-import { ErrorModal } from "../components/Modal.jsx";
+import { getStaff } from "../data";
+import { regexNumber } from "../lib";
 
 //Any code outside a component will run globally (before React components render)
 //console.log("I'm working from the staffLogin");
