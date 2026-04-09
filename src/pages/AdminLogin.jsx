@@ -18,9 +18,9 @@ export default function AdminLogin() {
     } else {
       auth(account).then((data) => {
         if (data) {
-          //console.log(data);
+          console.log(data);
           setUser(data);
-          setAccessCookie(data), setRefreshCookie(data);
+          (setAccessCookie(data), setRefreshCookie(data));
           navigate("/admin", { state: {} });
         } else {
           setLoginError("Invalid username or password");

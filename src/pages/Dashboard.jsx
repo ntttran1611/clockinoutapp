@@ -64,13 +64,14 @@ export default function Dashboard() {
     //tempStaff:isClockIn will be changing => this will be updated too
     if (tempStaff) {
       getTodayClockList(tempStaff.id, dayjs()).then((data) =>
-        setTodayClockList(data)
+        setTodayClockList(data),
       );
       getClockListWithinRange(
         tempStaff.id,
         convertDateObjToISOString(searchStartDate),
-        convertDateObjToISOString(searchEndDate)
+        convertDateObjToISOString(searchEndDate),
       ).then((data) => {
+        console.log(data);
         setTableClockList(data);
       });
     }
@@ -128,7 +129,7 @@ export default function Dashboard() {
     const start = convertDateObjToISOString(searchStartDate);
     const end = convertDateObjToISOString(searchEndDate);
     getClockListWithinRange(tempStaff.id, start, end).then((data) =>
-      setTableClockList(data)
+      setTableClockList(data),
     );
   }
 
@@ -164,10 +165,12 @@ export default function Dashboard() {
         </SideBar>
         <div className="flex-1 h-screen hidden lg:block">
           <div className="flex flex-col h-full">
-            <div className="basis-1/6">
-              <NavBar title={`Welcome back, ${tempStaff.firstName}!`} />
+            <div className="basis-1/6 ">
+              <NavBar
+                title={`G'day, ${tempStaff.firstName}! Ready to clock in?`}
+              />
             </div>
-            <div className="basis-5/6">
+            <div className="basis-5/6 ">
               <div className="w-5/6 min-h-60 mx-auto rounded-xl shadow-2xl p-10 flex flex-col justify-center items-center">
                 <div className="font-vietnam text-md font-semibold text-text-primary mb-5 text-center">
                   <p>CLOCK IN/OUT HISTORY</p>
@@ -194,7 +197,7 @@ export default function Dashboard() {
                         ...searchStartDate,
                         day: dayFormatting(
                           e.target.value,
-                          defaultStartOfWeek.day
+                          defaultStartOfWeek.day,
                         ),
                       })
                     }
@@ -203,7 +206,7 @@ export default function Dashboard() {
                         ...searchStartDate,
                         month: monthFormatting(
                           e.target.value,
-                          defaultStartOfWeek.month
+                          defaultStartOfWeek.month,
                         ),
                       })
                     }
@@ -212,7 +215,7 @@ export default function Dashboard() {
                         ...searchStartDate,
                         year: yearFormatting(
                           e.target.value,
-                          defaultStartOfWeek.year
+                          defaultStartOfWeek.year,
                         ),
                       })
                     }
@@ -237,7 +240,7 @@ export default function Dashboard() {
                         ...searchEndDate,
                         day: dayFormatting(
                           e.target.value,
-                          defaultEndOfWeek.day
+                          defaultEndOfWeek.day,
                         ),
                       })
                     }
@@ -246,7 +249,7 @@ export default function Dashboard() {
                         ...searchEndDate,
                         month: monthFormatting(
                           e.target.value,
-                          defaultEndOfWeek.month
+                          defaultEndOfWeek.month,
                         ),
                       })
                     }
@@ -255,7 +258,7 @@ export default function Dashboard() {
                         ...searchEndDate,
                         year: yearFormatting(
                           e.target.value,
-                          defaultEndOfWeek.year
+                          defaultEndOfWeek.year,
                         ),
                       })
                     }
@@ -310,7 +313,7 @@ export default function Dashboard() {
                                 {clock.endTime
                                   ? `${getHourDiff(
                                       clock.startTime,
-                                      clock.endTime
+                                      clock.endTime,
                                     )}h`
                                   : "Unfinished"}
                               </td>

@@ -39,7 +39,7 @@ export default function AdminDashboard() {
         }));
       }
     }
-    updateTabSize(), window.addEventListener("resize", updateTabSize);
+    (updateTabSize(), window.addEventListener("resize", updateTabSize));
     return () => window.removeEventListener("resize", updateTabSize);
   }, []);
 
