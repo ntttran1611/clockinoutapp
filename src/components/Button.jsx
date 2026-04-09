@@ -1,10 +1,10 @@
 export default function Button({ type, onClick, typeName, children }) {
   function getClassName() {
     if (typeName === "login") {
-      return "bg-deep-green w-full text-center py-2 rounded-lg text-white font-medium shadow-bold cursor-pointer font-vietnam";
+      return "bg-mocha w-full text-center py-2 rounded-lg text-white font-medium shadow-bold cursor-pointer font-vietnam";
     }
     if (typeName === "icon-primary") {
-      return "bg-deep-green text-center p-2 rounded-2xl text-white cursor-pointer text-sm";
+      return "bg-mocha text-center p-2 rounded-2xl text-white cursor-pointer text-sm";
     }
     if (typeName === "icon-secondary") {
       return "bg-secondary-bg text-center p-2 rounded-2xl text-black cursor-pointer text-sm";

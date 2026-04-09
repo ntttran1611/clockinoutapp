@@ -5,7 +5,7 @@ export default function SelectOption({ value, children }) {
   return (
     <li
       onClick={() => selectValue(value, children)}
-      className="px-4 py-2 cursor-pointer hover:bg-green-secondary transition duration-150 hover:text-white"
+      className="px-4 py-2 cursor-pointer hover:bg-sky-mist transition duration-150 hover:text-white"
     >
       {children}
     </li>

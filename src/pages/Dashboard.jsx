@@ -278,7 +278,7 @@ export default function Dashboard() {
                   }`}
                 >
                   {tableClockList.length > 0 ? (
-                    <table className="table table-zebra font-vietnam text-xs text-text-primary table-pin-rows">
+                    <table className="table font-vietnam text-xs text-text-primary table-pin-rows">
                       <thead className="text-deep-green">
                         <tr>
                           <th>Clock In Date</th>

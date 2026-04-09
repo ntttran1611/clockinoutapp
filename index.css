@@ -8,13 +8,13 @@
 }
 
 @theme {
-  --color-bar: #f1ebe1;
-  --color-primary-bg: #c1ceb9;
+  --color-bar: #f7f3ed;
+  --color-primary-bg: #e1dbd3;
   --color-secondary-bg: #d9d9d9;
-  --color-deep-green: #44624a;
+  --color-mocha: rgb(66, 43, 35, 0.8);
   --color-light-pink: #dd88b4;
-  --color-text-primary: #322f2f;
-  --color-green-secondary: #8ba888;
+  --color-text-primary: #454444;
+  --color-sky-mist: rgb(117, 136, 156, 0.5);
   --color-text-secondary: #605959;
   --color-alert: #be5151;
   --font-vietnam: "Be Vietnam Pro", sans-serif;
