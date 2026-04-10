@@ -6,7 +6,7 @@ export * from "./Modal.jsx";
 export { default as DateInputField } from "./DateInputField.jsx";
 
 //Dashboard
-export { default as NavBar } from "./dashboard/NaxBar.jsx";
+export { default as NavBar } from "./dashboard/NavBar.jsx";
 export { default as SideBar } from "./dashboard/SideBar.jsx";
 export { default as TimeHolder } from "./dashboard/TimeHolder.jsx";
 export { default as TimeRecord } from "./dashboard/TimeRecord.jsx";

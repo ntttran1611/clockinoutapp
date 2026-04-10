@@ -2,12 +2,11 @@ import dayjs from "dayjs";
 import { FiClock } from "react-icons/fi";
 import { MdLogout } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
-import { RiChatSmile3Line } from "react-icons/ri";
 import { useRef, useEffect } from "react";
 import { clockSync } from "../../lib/time";
 import { useUser } from "../../context/UserContext";
 import { removeCookie, signOut } from "../../auth";
-export default function NavBar({ title }) {
+export default function NavBar() {
   const location = useLocation();
   const isInStaffLogin = location.pathname === "/dashboard";
   const { setUser } = useUser();
@@ -34,11 +33,7 @@ export default function NavBar({ title }) {
     clockSync(displayTime);
   }, []);
   return (
-    <div className="flex p-10 w-full justify-between font-vietnam items-center">
-      <div className=" text-light-pink font-bold text-2xl flex gap-1 items-center">
-        <RiChatSmile3Line />
-        {title}
-      </div>
+    <div className="flex p-10 w-full justify-end font-vietnam items-center">
       <div className="font-extralight text-sm">
         <p className="flex items-center gap-1">
           <FiClock className="h-5 w-5 font-extrabold" />

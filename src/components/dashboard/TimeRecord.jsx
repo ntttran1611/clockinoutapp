@@ -11,7 +11,7 @@ export default function TimeRecord({ startTime, endTime }) {
       if (timeCounterRef.current && !endTime) {
         const currentTime = dayjs();
         timeCounterRef.current.innerText = fromIntToTimeString(
-          currentTime.diff(startTime)
+          currentTime.diff(startTime),
         );
       }
     }, 1000);
@@ -23,7 +23,7 @@ export default function TimeRecord({ startTime, endTime }) {
   const clockInText = (
     <p>
       <strong>Clock in at: </strong>
-      {startTime ? dayjs(startTime).format("HH:mm:ss, DD/MM/YYYY") : ""};
+      {startTime && dayjs(startTime).format("HH:mm:ss, DD/MM/YYYY")};
     </p>
   );
 
