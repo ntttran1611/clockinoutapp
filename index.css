@@ -14,9 +14,10 @@
   --color-mocha: rgb(66, 43, 35, 0.8);
   --color-light-pink: #dd88b4;
   --color-text-primary: #454444;
-  --color-sky-mist: rgb(117, 136, 156, 0.5);
+  --color-sky-mist-50: rgb(117, 136, 156, 0.5);
+  --color-sky-mist-100: rgb(117, 136, 156);
   --color-text-secondary: #605959;
-  --color-alert: #be5151;
+  --color-alert: #6d120b;
   --font-vietnam: "Be Vietnam Pro", sans-serif;
   --shadow-bold: 0 6px 10px rgba(0, 0, 0, 0.3);
 }

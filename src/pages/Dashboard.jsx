@@ -139,14 +139,14 @@ export default function Dashboard() {
         id="clockInAlert"
         heading="Attention before action"
         content={`Hi ${tempStaff.firstName}, are you sure to clock in?`}
-        color="deep-green"
+        color="sky-mist-100"
         action={handleClockIn}
       />
       <AlertModal
         id="clockOutAlert"
         heading="Attention before action"
         content={`Hi ${tempStaff.firstName}, are you sure to clock out?`}
-        color="deep-green"
+        color="alert"
         action={handleClockOut}
       />
 
@@ -279,7 +279,7 @@ export default function Dashboard() {
                 >
                   {tableClockList.length > 0 ? (
                     <table className="table font-vietnam text-xs text-text-primary table-pin-rows">
-                      <thead className="text-deep-green">
+                      <thead className="text-sky-mist-100">
                         <tr>
                           <th>Clock In Date</th>
                           <th>Clock In At</th>
