@@ -24,7 +24,7 @@ export default function StaffLogin() {
   const [branch, setBranch] = useState(
     localStorage.getItem("branch")
       ? localStorage.getItem("branch")
-      : "Hobart CBD Salon"
+      : "Hobart CBD Salon",
   );
   const navigate = useNavigate();
   function handleSubmit(e) {
@@ -91,7 +91,7 @@ export default function StaffLogin() {
               typeName="login"
             />
             <Button type="submit" typeName="login">
-              LOG IN
+              Let's get started!
             </Button>
           </form>
         </div>

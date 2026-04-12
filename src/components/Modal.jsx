@@ -20,7 +20,7 @@ export function AlertModal({ id, action, heading, content, color }) {
             >
               Confirm
             </button>
-            <button className="btn text-black border-none bg-secondary-bg font-light tracking-wide">
+            <button className="btn text-text-primary border-none bg-secondary-bg font-light tracking-wide">
               Close
             </button>
           </form>

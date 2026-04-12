@@ -104,3 +104,7 @@
     animation: fade-right 0.3s ease-out forwards;
   }
 }
+
+html {
+  font-family: var(--font-vietnam);
+}

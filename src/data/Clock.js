@@ -1,4 +1,5 @@
 import { supabase } from "../api";
+import dayjs from "dayjs";
 
 export async function getClockList(staffId) {
   try {
@@ -37,14 +38,15 @@ export async function getTodayClockList(staffId, today) {
 }
 
 export async function getClockListWithinRange(staffId, start, end) {
+  const nextEndDay = dayjs(end).add(1, "day").startOf("day").toISOString();
   try {
     const { data, error } = await supabase
       .from("clock")
       .select()
       .eq("staffId", staffId)
       .gte("startTime", start)
-      .lte("startTime", end)
-      .order("startTime", { ascending: true });
+      .lte("startTime", nextEndDay)
+      .order("startTime", { ascending: false });
 
     if (error) {
       console.error("Error fetching data: ", error);
@@ -113,9 +115,90 @@ export async function updateClock(clock) {
     } else {
       console.log("Update clock successfully");
     }
+
     return data;
   } catch (err) {
     console.error("Unexpected error: ", err);
     return null;
+  }
+}
+
+export async function checkAndAutoClockOut(staffId) {
+  try {
+    // Query for incomplete clock records: endTime IS NULL and clockoutMethod IS NULL
+    const { data, error } = await supabase
+      .from("clock")
+      .select("id, startTime, endTime, clockoutMethod")
+      .eq("staffId", staffId)
+      .is("endTime", null)
+      .is("clockoutMethod", null);
+
+    if (error) {
+      console.error("Error fetching incomplete clock records: ", error);
+      return { success: false, updated: 0, error };
+    }
+
+    if (!data || data.length === 0) {
+      console.log("No incomplete clock records found");
+      return { success: true, updated: 0, message: "No incomplete records" };
+    }
+
+    const now = dayjs();
+    const updates = [];
+
+    // Check each record to see if it should be auto-clocked out
+    for (const record of data) {
+      const startTime = dayjs(record.startTime);
+      const sixteenHoursLater = startTime.add(16, "hours");
+
+      // If current time is after startTime + 16 hours
+      if (now.isAfter(sixteenHoursLater)) {
+        // Set endTime to 17:00 on the same date as startTime
+        const endTime = startTime
+          .set("hour", 17)
+          .set("minute", 0)
+          .set("second", 0)
+          .toISOString();
+
+        updates.push({
+          id: record.id,
+          endTime,
+        });
+      }
+    }
+
+    if (updates.length === 0) {
+      console.log("No records met the auto clock-out criteria");
+      return { success: true, updated: 0, message: "No records met criteria" };
+    }
+
+    // Batch update all qualifying records
+    const updatePromises = updates.map((update) =>
+      supabase
+        .from("clock")
+        .update({ endTime: update.endTime, clockoutMethod: "auto-generated" })
+        .eq("id", update.id),
+    );
+
+    const results = await Promise.all(updatePromises);
+
+    // Check for any errors in the batch update
+    const failedUpdates = results.filter((result) => result.error);
+
+    if (failedUpdates.length > 0) {
+      console.error("Some updates failed:", failedUpdates);
+      return {
+        success: false,
+        updated: updates.length - failedUpdates.length,
+        failed: failedUpdates.length,
+        errors: failedUpdates,
+      };
+    }
+
+    console.log(`Successfully auto-clocked out ${updates.length} record(s)`);
+    return { success: true, updated: updates.length, records: updates };
+  } catch (err) {
+    console.error("Unexpected error in checkAndAutoClockOut: ", err);
+    return { success: false, error: err.message };
   }
 }
