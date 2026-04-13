@@ -59,3 +59,28 @@ export async function updateStaff(staff) {
     return null;
   }
 }
+
+export async function updateStaffClockInStatus(
+  staffId,
+  isClockIn,
+  currentClockId,
+) {
+  try {
+    const { data, error } = await supabase
+      .from("staff")
+      .update({
+        isClockIn: isClockIn,
+        currentClockId: currentClockId,
+      })
+      .eq("id", staffId);
+
+    if (error) {
+      console.error("Error updating clock in status: ", error);
+      alert(error);
+    } else {
+      console.log("Update staff clock in status successfully");
+    }
+  } catch (err) {
+    console.error("Unexpected error: ", err);
+  }
+}

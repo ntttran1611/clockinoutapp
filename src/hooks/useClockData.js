@@ -4,20 +4,22 @@ import {
   getTodayClockList,
   getClockListWithinRange,
   checkAndAutoClockOut,
+  updateStaffClockInStatus,
 } from "../data";
 import { convertDateObjToISOString } from "../lib";
 
-export function useClockData(staffId, searchStartDate, searchEndDate) {
+export function useClockData(searchStartDate, searchEndDate) {
   const [todayClockList, setTodayClockList] = useState([]);
   const [tableClockList, setTableClockList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const staffId = localStorage.getItem("staff");
 
   useEffect(() => {
     async function finalisePrevClockOutAndSetupTodayClockList() {
       if (staffId) {
         await checkAndAutoClockOut(staffId);
-        const todayClockList = await getTodayClockList(staffId, dayjs());
-        setTodayClockList(todayClockList);
+        //await updateStaffClockInStatus(staffId, false, null); //clock out staff in case they forgot to clock out yesterday, and update their clock in status to false, so that the dashboard can reflect the correct clock in status
+        await refetchTodayClockList();
         await refetchTableClockList();
       }
     }
@@ -32,11 +34,30 @@ export function useClockData(staffId, searchStartDate, searchEndDate) {
         const end = convertDateObjToISOString(searchEndDate);
         const data = await getClockListWithinRange(staffId, start, end);
         setTableClockList(data);
+      } catch (error) {
+        console.error("Unexpected error: ", error);
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  return { todayClockList, tableClockList, isLoading, refetchTableClockList };
+  const refetchTodayClockList = async () => {
+    if (staffId) {
+      try {
+        const data = await getTodayClockList(staffId, dayjs());
+        setTodayClockList(data);
+      } catch (error) {
+        console.error("Unexpected error: ", error);
+      }
+    }
+  };
+
+  return {
+    todayClockList,
+    tableClockList,
+    isLoading,
+    refetchTableClockList,
+    refetchTodayClockList,
+  };
 }

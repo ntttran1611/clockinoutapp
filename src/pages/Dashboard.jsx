@@ -28,13 +28,19 @@ export default function Dashboard() {
   const defaultEndOfWeek = convertToDateObject(endOfWeek(dayjs()));
   const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
-
+  const {
+    todayClockList,
+    tableClockList,
+    isLoading,
+    refetchTableClockList,
+    refetchTodayClockList,
+  } = useClockData(searchStartDate, searchEndDate);
   const { tempStaff, setStaff } = useStaffInitialization();
-  const { todayClockList, tableClockList, isLoading, refetchTableClockList } =
-    useClockData(tempStaff?.id, searchStartDate, searchEndDate);
   const { handleClockIn, handleClockOut } = useClockActions(
     tempStaff,
     setStaff,
+    refetchTableClockList,
+    refetchTodayClockList,
   );
 
   const handleClockBtnClicked = () => {

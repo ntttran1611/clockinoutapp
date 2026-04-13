@@ -1,7 +1,12 @@
 import dayjs from "dayjs";
 import { addClock, getCurrentClock, updateClock, updateStaff } from "../data";
 
-export function useClockActions(tempStaff, setStaff) {
+export function useClockActions(
+  tempStaff,
+  setStaff,
+  refetchTableClockList,
+  refetchTodayClockList,
+) {
   const handleClockIn = async () => {
     const newTimeRecord = {
       startTime: dayjs().toISOString(),
@@ -18,6 +23,8 @@ export function useClockActions(tempStaff, setStaff) {
     };
     setStaff(updatedStaff);
     await updateStaff(updatedStaff);
+    await refetchTableClockList();
+    await refetchTodayClockList();
   };
 
   const handleClockOut = async () => {
@@ -32,6 +39,8 @@ export function useClockActions(tempStaff, setStaff) {
       await updateClock(updatedClock);
       await updateStaff(updatedStaff);
       setStaff(updatedStaff);
+      await refetchTableClockList();
+      await refetchTodayClockList();
     }
   };
 
