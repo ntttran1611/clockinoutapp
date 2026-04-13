@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export function useAutoClockOutMutation() {
   const queryClient = useQueryClient();
   const autoClockOutMutation = useMutation({
-    mutationFn: (tempStaff) => checkAndAutoClockOut(tempStaff),
+    mutationFn: (tempStaff) => checkAndAutoClockOut(tempStaff.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todayClockList"] });
       queryClient.invalidateQueries({ queryKey: ["tableClockList"] });

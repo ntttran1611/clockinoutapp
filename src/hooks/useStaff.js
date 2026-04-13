@@ -27,7 +27,6 @@ export function useUpdateStaffMutation() {
       console.error("Error updating staff clock status: ", error);
     },
   });
-
   return updateStaffMutation;
 }
 
@@ -50,21 +49,9 @@ export function useStaffInitialization() {
     return;
   }
 
-  /*
-  const [tempStaff, setStaff] = useState();
-  useEffect(() => {
-    if (!localStorage.getItem("staff")) {
-      
-    } else {
-      getStaff(localStorage.getItem("staff")).then((data) => {
-        setStaff(data);
-      });
-    }
-  }, [navigate]);*/
-
   return {
     tempStaff: query.data,
     refetchStaff: query.refetch,
-    setStaff: query.setData,
+    isStaffLoading: query.isLoading,
   };
 }

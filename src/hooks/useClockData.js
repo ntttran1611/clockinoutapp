@@ -3,11 +3,9 @@ import { getTodayClockList, getClockListWithinRange } from "../data";
 import { convertDateObjToISOString } from "../lib";
 import { useQuery } from "@tanstack/react-query";
 
-const staffId = localStorage.getItem("staff");
-
-export function useTableClockData(searchStartDate, searchEndDate) {
+export function useTableClockData(staffId, searchStartDate, searchEndDate) {
   const tableClockQuery = useQuery({
-    queryKey: ["tableClockList", searchStartDate, searchEndDate],
+    queryKey: ["tableClockList", staffId],
     queryFn: () =>
       getClockListWithinRange(
         staffId,
@@ -24,7 +22,7 @@ export function useTableClockData(searchStartDate, searchEndDate) {
   };
 }
 
-export function useTodayClockData() {
+export function useTodayClockData(staffId) {
   const todayClockQuery = useQuery({
     queryKey: ["todayClockList"],
     queryFn: () => getTodayClockList(staffId, dayjs()),

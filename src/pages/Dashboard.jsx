@@ -34,14 +34,16 @@ export default function Dashboard() {
   const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
   //Staff
-  const { tempStaff, refetchStaff, setStaff } = useStaffInitialization();
+  const { tempStaff, refetchStaff, isStaffLoading } = useStaffInitialization();
   const updateStaffMutation = useUpdateStaffMutation();
   const updateStaffClockStatusMutation = useStaffUpdateClockStatusMutation();
 
   //Clock Data
   const { tableClockList, isLoading, refetchTableClockList } =
-    useTableClockData(searchStartDate, searchEndDate);
-  const { todayClockList, refetchTodayClockList } = useTodayClockData();
+    useTableClockData(tempStaff?.id, searchStartDate, searchEndDate);
+  const { todayClockList, refetchTodayClockList } = useTodayClockData(
+    tempStaff?.id,
+  );
 
   //Clock Actions
   const autoClockOutMutation = useAutoClockOutMutation();
@@ -49,17 +51,28 @@ export default function Dashboard() {
   const updateCurrentClockMutation = useUpdateClockMutation();
 
   useEffect(() => {
-    if (tempStaff) {
-      autoClockOutMutation.mutate(tempStaff.id);
-      if (tempStaff.isClockIn && tempStaff.currentClockId) {
-        updateStaffClockStatusMutation.mutate({
-          staffID: tempStaff.id,
-          isClockIn: false,
-          currentClockId: null,
-        });
+    async function checkAutoClockOut() {
+      if (!tempStaff) return;
+      try {
+        const data = await autoClockOutMutation.mutateAsync(tempStaff);
+        //console.log("Auto clock-out check completed: ", data);
+        if (
+          data?.updated > 0 &&
+          tempStaff.isClockIn &&
+          tempStaff.currentClockId
+        ) {
+          await updateStaffClockStatusMutation.mutateAsync({
+            staffID: tempStaff.id,
+            isClockIn: false,
+            currentClockId: null,
+          });
+        }
+      } catch (error) {
+        console.error("Error checking auto clock out: ", error);
       }
     }
-  }, []);
+    checkAutoClockOut();
+  }, [tempStaff]);
 
   const handleClockBtnClicked = () => {
     if (!tempStaff.isClockIn) {
@@ -114,6 +127,7 @@ export default function Dashboard() {
           isClockIn: false,
           currentClockId: null,
         };
+
         await updateStaffMutation.mutateAsync(updatedStaff);
       } catch (error) {
         console.error("Error during clock out process: ", error);
@@ -121,7 +135,7 @@ export default function Dashboard() {
     }
   };
 
-  return tempStaff ? (
+  return !isStaffLoading ? (
     <>
       <AlertModal
         id={MODAL_IDS.CLOCK_IN_ALERT}
