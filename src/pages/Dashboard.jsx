@@ -10,8 +10,13 @@ import { startOfWeek, endOfWeek, convertToDateObject } from "../lib";
 
 import {
   useStaffInitialization,
-  useClockData,
-  useClockActions,
+  useTableClockData,
+  useTodayClockData,
+  useAutoClockOutMutation,
+  useStaffUpdateClockStatusMutation,
+  useAddClockMutation,
+  useUpdateClockMutation,
+  useUpdateStaffMutation,
 } from "../hooks";
 import { MODAL_IDS, ALERT_CONFIG } from "../lib/dashboardConstants";
 import dayjs from "dayjs";
@@ -28,20 +33,33 @@ export default function Dashboard() {
   const defaultEndOfWeek = convertToDateObject(endOfWeek(dayjs()));
   const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
-  const {
-    todayClockList,
-    tableClockList,
-    isLoading,
-    refetchTableClockList,
-    refetchTodayClockList,
-  } = useClockData(searchStartDate, searchEndDate);
-  const { tempStaff, setStaff } = useStaffInitialization();
-  const { handleClockIn, handleClockOut } = useClockActions(
-    tempStaff,
-    setStaff,
-    refetchTableClockList,
-    refetchTodayClockList,
-  );
+  //Staff
+  const { tempStaff, refetchStaff, setStaff } = useStaffInitialization();
+  const updateStaffMutation = useUpdateStaffMutation();
+  const updateStaffClockStatusMutation = useStaffUpdateClockStatusMutation();
+
+  //Clock Data
+  const { tableClockList, isLoading, refetchTableClockList } =
+    useTableClockData(searchStartDate, searchEndDate);
+  const { todayClockList, refetchTodayClockList } = useTodayClockData();
+
+  //Clock Actions
+  const autoClockOutMutation = useAutoClockOutMutation();
+  const addNewClockMutation = useAddClockMutation();
+  const updateCurrentClockMutation = useUpdateClockMutation();
+
+  useEffect(() => {
+    if (tempStaff) {
+      autoClockOutMutation.mutate(tempStaff.id);
+      if (tempStaff.isClockIn && tempStaff.currentClockId) {
+        updateStaffClockStatusMutation.mutate({
+          staffID: tempStaff.id,
+          isClockIn: false,
+          currentClockId: null,
+        });
+      }
+    }
+  }, []);
 
   const handleClockBtnClicked = () => {
     if (!tempStaff.isClockIn) {
@@ -53,6 +71,54 @@ export default function Dashboard() {
 
   const handleViewBtnClicked = () => {
     refetchTableClockList();
+  };
+
+  const handleClockIn = async () => {
+    if (!tempStaff) return;
+    const newTimeRecord = {
+      startTime: dayjs().toISOString(),
+      endTime: null,
+      staffId: tempStaff.id,
+      branch: localStorage.getItem("branch"),
+    };
+
+    try {
+      const newAddedClock =
+        await addNewClockMutation.mutateAsync(newTimeRecord);
+
+      if (newAddedClock && newAddedClock.length > 0) {
+        const updatedStaff = {
+          ...tempStaff,
+          isClockIn: true,
+          currentClockId: newAddedClock[0].id,
+        };
+        await updateStaffMutation.mutateAsync(updatedStaff);
+      }
+    } catch (error) {
+      console.error("Error during clock in process: ", error);
+    }
+  };
+
+  const handleClockOut = async () => {
+    if (!tempStaff) return;
+    if (tempStaff.currentClockId) {
+      const data = todayClockList.find(
+        (clock) => clock.id === tempStaff.currentClockId,
+      );
+      const updatedClock = { ...data, endTime: dayjs().toISOString() };
+      try {
+        await updateCurrentClockMutation.mutateAsync(updatedClock);
+
+        const updatedStaff = {
+          ...tempStaff,
+          isClockIn: false,
+          currentClockId: null,
+        };
+        await updateStaffMutation.mutateAsync(updatedStaff);
+      } catch (error) {
+        console.error("Error during clock out process: ", error);
+      }
+    }
   };
 
   return tempStaff ? (

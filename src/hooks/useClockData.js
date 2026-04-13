@@ -1,63 +1,39 @@
-import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import {
-  getTodayClockList,
-  getClockListWithinRange,
-  checkAndAutoClockOut,
-  updateStaffClockInStatus,
-} from "../data";
+import { getTodayClockList, getClockListWithinRange } from "../data";
 import { convertDateObjToISOString } from "../lib";
+import { useQuery } from "@tanstack/react-query";
 
-export function useClockData(searchStartDate, searchEndDate) {
-  const [todayClockList, setTodayClockList] = useState([]);
-  const [tableClockList, setTableClockList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const staffId = localStorage.getItem("staff");
+const staffId = localStorage.getItem("staff");
 
-  useEffect(() => {
-    async function finalisePrevClockOutAndSetupTodayClockList() {
-      if (staffId) {
-        await checkAndAutoClockOut(staffId);
-        //await updateStaffClockInStatus(staffId, false, null); //clock out staff in case they forgot to clock out yesterday, and update their clock in status to false, so that the dashboard can reflect the correct clock in status
-        await refetchTodayClockList();
-        await refetchTableClockList();
-      }
-    }
-    finalisePrevClockOutAndSetupTodayClockList();
-  }, [staffId]);
-
-  const refetchTableClockList = async () => {
-    if (staffId) {
-      setIsLoading(true);
-      try {
-        const start = convertDateObjToISOString(searchStartDate);
-        const end = convertDateObjToISOString(searchEndDate);
-        const data = await getClockListWithinRange(staffId, start, end);
-        setTableClockList(data);
-      } catch (error) {
-        console.error("Unexpected error: ", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const refetchTodayClockList = async () => {
-    if (staffId) {
-      try {
-        const data = await getTodayClockList(staffId, dayjs());
-        setTodayClockList(data);
-      } catch (error) {
-        console.error("Unexpected error: ", error);
-      }
-    }
-  };
+export function useTableClockData(searchStartDate, searchEndDate) {
+  const tableClockQuery = useQuery({
+    queryKey: ["tableClockList", searchStartDate, searchEndDate],
+    queryFn: () =>
+      getClockListWithinRange(
+        staffId,
+        convertDateObjToISOString(searchStartDate),
+        convertDateObjToISOString(searchEndDate),
+      ),
+    enabled: !!staffId,
+  });
 
   return {
-    todayClockList,
-    tableClockList,
-    isLoading,
-    refetchTableClockList,
-    refetchTodayClockList,
+    tableClockList: tableClockQuery.data || [],
+    isLoading: tableClockQuery.isLoading,
+    refetchTableClockList: tableClockQuery.refetch,
+  };
+}
+
+export function useTodayClockData() {
+  const todayClockQuery = useQuery({
+    queryKey: ["todayClockList"],
+    queryFn: () => getTodayClockList(staffId, dayjs()),
+    enabled: !!staffId,
+  });
+
+  return {
+    todayClockList: todayClockQuery.data || [],
+    isLoading: todayClockQuery.isLoading,
+    refetchTodayClockList: todayClockQuery.refetch,
   };
 }
