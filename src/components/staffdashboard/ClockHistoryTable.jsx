@@ -29,15 +29,22 @@ export function ClockHistoryTable({ tableClockList, isLoading }) {
             {tableClockList.map((clock) => {
               const row = formatClockTableRow(clock, getHourDiff);
               return (
-                <tr key={clock.id}>
+                <tr
+                  key={clock.id}
+                  className={!clock.endTime ? "bg-sky-mist-20" : ""}
+                >
                   <td>{row.clockInDate}</td>
                   <td>{row.clockInTime}</td>
-                  <td>{row.clockOutDate}</td>
                   <td>{row.clockOutTime}</td>
                   <td>{row.totalHours}</td>
                   <td>{row.branch}</td>
                   <td className={getClockoutMethodColor(row.clockoutMethod)}>
                     {row.clockoutMethod}
+                  </td>
+                  <td>
+                    {row.note.length > 15
+                      ? `${row.note.substring(0, 30)}...`
+                      : row.note}
                   </td>
                 </tr>
               );
