@@ -20,7 +20,7 @@ export function ClockHistoryTable({ tableClockList, isLoading }) {
           <tbody>
             <tr>
               <td colSpan="7" className="text-center py-8">
-                <span className="loading loading-spinner loading-lg"></span>
+                <LoadingSpinner />
               </td>
             </tr>
           </tbody>

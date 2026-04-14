@@ -39,11 +39,18 @@ export default function Dashboard() {
   const updateStaffClockStatusMutation = useStaffUpdateClockStatusMutation();
 
   //Clock Data
-  const { tableClockList, isLoading, refetchTableClockList } =
-    useTableClockData(tempStaff?.id, searchStartDate, searchEndDate);
-  const { todayClockList, refetchTodayClockList } = useTodayClockData(
-    tempStaff?.id,
-  );
+  const {
+    tableClockList,
+    isTableClockLoading,
+    isTableClockFetching,
+    refetchTableClockList,
+  } = useTableClockData(tempStaff?.id, searchStartDate, searchEndDate);
+  const {
+    todayClockList,
+    isTodayClockLoading,
+    isTodayClockFetching,
+    refetchTodayClockList,
+  } = useTodayClockData(tempStaff?.id);
 
   //Clock Actions
   const autoClockOutMutation = useAutoClockOutMutation();
@@ -186,7 +193,7 @@ export default function Dashboard() {
               />
               <ClockHistoryTable
                 tableClockList={tableClockList}
-                isLoading={isLoading}
+                isLoading={isTableClockLoading}
               />
             </div>
           </div>
