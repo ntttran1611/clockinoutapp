@@ -27,6 +27,7 @@ export const ALERT_CONFIG = {
 export const CLOCK_OUT_METHODS = {
   AUTO_GENERATED: "auto-generated",
   ADMIN_VERIFIED: "admin-verified",
+  MANUAL: "manual",
 };
 
 // CSS Classes for Clock-out Method
@@ -38,11 +39,11 @@ export const CLOCKOUT_METHOD_CLASSES = {
 
 // Table Headers
 export const TABLE_HEADERS = [
-  "Clock In Date",
-  "Clock In At",
-  "Clock Out Date",
-  "Clock Out At",
+  "Shift Date",
+  "Begin At",
+  "Finish At",
   "Total Hours",
   "Branch",
   "Clock-out Method",
+  "Note",
 ];

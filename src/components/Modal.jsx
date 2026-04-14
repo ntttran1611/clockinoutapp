@@ -1,6 +1,14 @@
 import { IoAlertCircle } from "react-icons/io5";
 
-export function AlertModal({ id, action, heading, content, color }) {
+export function AlertModal({
+  id,
+  action,
+  heading,
+  content,
+  color,
+  textContent,
+  setTextContent,
+}) {
   return (
     <dialog id={id} className="modal modal-bottom sm:modal-middle">
       <div className="modal-box font-vietnam ">
@@ -12,6 +20,8 @@ export function AlertModal({ id, action, heading, content, color }) {
         </h3>
         <p className="py-4 text-mocha">{content}</p>
         <textarea
+          value={textContent}
+          onChange={(e) => setTextContent(e.target.value)}
           placeholder="Leave a note here if needed..."
           className="textarea textarea-md w-full focus:outline-none"
         ></textarea>

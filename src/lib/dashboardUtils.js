@@ -26,9 +26,6 @@ export function formatClockTableRow(clock, getHourDiff) {
   return {
     clockInDate: dayjs(clock.startTime).format("DD/MM/YYYY"),
     clockInTime: dayjs(clock.startTime).format("HH:mm:ss"),
-    clockOutDate: clock.endTime
-      ? dayjs(clock.endTime).format("DD/MM/YYYY")
-      : "Unfinished",
     clockOutTime: clock.endTime
       ? dayjs(clock.endTime).format("HH:mm:ss")
       : "Unfinished",
@@ -37,5 +34,12 @@ export function formatClockTableRow(clock, getHourDiff) {
       : "Unfinished",
     branch: clock.branch,
     clockoutMethod: clock.clockoutMethod || "Unfinished",
+    note: clock.note || "",
   };
+}
+
+export function getNoteOfLatestClockIn(clockList, currentClockId) {
+  if ((!clockList && clockList.length === 0) || !currentClockId) return "";
+  const latestClockIn = clockList.find((clock) => clock.id === currentClockId);
+  return latestClockIn ? latestClockIn.note : "";
 }

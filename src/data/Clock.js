@@ -107,6 +107,8 @@ export async function updateClock(clock) {
         endTime: clock.endTime,
         branch: clock.branch,
         staffId: clock.staffId,
+        clockoutMethod: clock.clockoutMethod,
+        note: clock.note,
       })
       .eq("id", clock.id);
 

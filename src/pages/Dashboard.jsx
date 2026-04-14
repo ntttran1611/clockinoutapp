@@ -18,21 +18,28 @@ import {
   useUpdateClockMutation,
   useUpdateStaffMutation,
 } from "../hooks";
-import { MODAL_IDS, ALERT_CONFIG } from "../lib/dashboardConstants";
+import {
+  MODAL_IDS,
+  ALERT_CONFIG,
+  CLOCK_OUT_METHODS,
+} from "../lib/dashboardConstants";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Header from "../components/dashboard/Header";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { getNoteOfLatestClockIn } from "../lib/dashboardUtils";
 
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
 export default function Dashboard() {
+  //Dashboard States
   const defaultStartOfWeek = convertToDateObject(startOfWeek(dayjs()));
   const defaultEndOfWeek = convertToDateObject(endOfWeek(dayjs()));
   const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
+  const [clockNote, setClockNote] = useState("");
   //Staff
   const { tempStaff, refetchStaff, isStaffLoading } = useStaffInitialization();
   const updateStaffMutation = useUpdateStaffMutation();
@@ -40,9 +47,7 @@ export default function Dashboard() {
   //Clock Data
   const { tableClockList, isTableClockLoading, refetchTableClockList } =
     useTableClockData(tempStaff?.id, searchStartDate, searchEndDate);
-  const { todayClockList, isTodayClockLoading } = useTodayClockData(
-    tempStaff?.id,
-  );
+  const { todayClockList } = useTodayClockData(tempStaff?.id);
   //Clock Actions
   const autoClockOutMutation = useAutoClockOutMutation();
   const addNewClockMutation = useAddClockMutation();
@@ -71,6 +76,16 @@ export default function Dashboard() {
     checkAutoClockOut();
   }, [tempStaff]);
 
+  useEffect(() => {
+    if (tempStaff && todayClockList) {
+      const note = getNoteOfLatestClockIn(
+        todayClockList,
+        tempStaff.currentClockId,
+      );
+      setClockNote(note);
+    }
+  }, [tempStaff, todayClockList]);
+
   const handleClockBtnClicked = () => {
     if (!tempStaff.isClockIn) {
       document.getElementById(MODAL_IDS.CLOCK_IN_ALERT).showModal();
@@ -90,6 +105,7 @@ export default function Dashboard() {
       endTime: null,
       staffId: tempStaff.id,
       branch: localStorage.getItem("branch"),
+      note: clockNote,
     };
 
     try {
@@ -115,8 +131,13 @@ export default function Dashboard() {
       const data = todayClockList.find(
         (clock) => clock.id === tempStaff.currentClockId,
       );
-      const updatedClock = { ...data, endTime: dayjs().toISOString() };
       try {
+        const updatedClock = {
+          ...data,
+          endTime: dayjs().toISOString(),
+          clockoutMethod: CLOCK_OUT_METHODS.MANUAL,
+          note: clockNote,
+        };
         await updateCurrentClockMutation.mutateAsync(updatedClock);
 
         const updatedStaff = {
@@ -124,8 +145,8 @@ export default function Dashboard() {
           isClockIn: false,
           currentClockId: null,
         };
-
         await updateStaffMutation.mutateAsync(updatedStaff);
+        setClockNote("");
       } catch (error) {
         console.error("Error during clock out process: ", error);
       }
@@ -140,6 +161,8 @@ export default function Dashboard() {
         content={`Hi ${tempStaff.firstName}, are you ready to START the shift?`}
         color={ALERT_CONFIG.CLOCK_IN.color}
         action={handleClockIn}
+        textContent={clockNote}
+        setTextContent={setClockNote}
       />
       <AlertModal
         id={MODAL_IDS.CLOCK_OUT_ALERT}
@@ -147,6 +170,8 @@ export default function Dashboard() {
         content={`Hi ${tempStaff.firstName}, are you sure to CLOSE the shift?`}
         color={ALERT_CONFIG.CLOCK_OUT.color}
         action={handleClockOut}
+        textContent={clockNote}
+        setTextContent={setClockNote}
       />
 
       <div className="relative h-screen flex">
