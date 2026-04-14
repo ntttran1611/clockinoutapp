@@ -12,7 +12,7 @@ export function DateRangeFilter({
   onViewClicked,
 }) {
   return (
-    <div className="flex items-center mb-3 2xl:w-1/3 w-5/6 gap-1">
+    <div className="flex items-center 2xl:w-1/3 w-5/6 gap-1">
       <p className="font-vietnam text-sm">from</p>
       <DateInputField
         dateObject={searchStartDate}

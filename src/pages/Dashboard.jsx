@@ -37,21 +37,12 @@ export default function Dashboard() {
   const { tempStaff, refetchStaff, isStaffLoading } = useStaffInitialization();
   const updateStaffMutation = useUpdateStaffMutation();
   const updateStaffClockStatusMutation = useStaffUpdateClockStatusMutation();
-
   //Clock Data
-  const {
-    tableClockList,
-    isTableClockLoading,
-    isTableClockFetching,
-    refetchTableClockList,
-  } = useTableClockData(tempStaff?.id, searchStartDate, searchEndDate);
-  const {
-    todayClockList,
-    isTodayClockLoading,
-    isTodayClockFetching,
-    refetchTodayClockList,
-  } = useTodayClockData(tempStaff?.id);
-
+  const { tableClockList, isTableClockLoading, refetchTableClockList } =
+    useTableClockData(tempStaff?.id, searchStartDate, searchEndDate);
+  const { todayClockList, isTodayClockLoading } = useTodayClockData(
+    tempStaff?.id,
+  );
   //Clock Actions
   const autoClockOutMutation = useAutoClockOutMutation();
   const addNewClockMutation = useAddClockMutation();
@@ -62,7 +53,6 @@ export default function Dashboard() {
       if (!tempStaff) return;
       try {
         const data = await autoClockOutMutation.mutateAsync(tempStaff);
-        //console.log("Auto clock-out check completed: ", data);
         if (
           data?.updated > 0 &&
           tempStaff.isClockIn &&
@@ -147,24 +137,24 @@ export default function Dashboard() {
       <AlertModal
         id={MODAL_IDS.CLOCK_IN_ALERT}
         heading={ALERT_CONFIG.CLOCK_IN.heading}
-        content={`Hi ${tempStaff.firstName}, are you sure to clock in?`}
+        content={`Hi ${tempStaff.firstName}, are you ready to START the shift?`}
         color={ALERT_CONFIG.CLOCK_IN.color}
         action={handleClockIn}
       />
       <AlertModal
         id={MODAL_IDS.CLOCK_OUT_ALERT}
         heading={ALERT_CONFIG.CLOCK_OUT.heading}
-        content={`Hi ${tempStaff.firstName}, are you sure to clock out?`}
+        content={`Hi ${tempStaff.firstName}, are you sure to CLOSE the shift?`}
         color={ALERT_CONFIG.CLOCK_OUT.color}
         action={handleClockOut}
       />
 
       <div className="relative h-screen flex">
         <SideBar footer={"CICO System"}>
-          <div className="px-4">
+          <div className="px-4 w-full flex flex-col items-center gap-5">
             <Button
               type="login"
-              typeName="login"
+              typeName={!tempStaff.isClockIn ? "clock-in" : "clock-out"}
               onClick={handleClockBtnClicked}
             >
               {!tempStaff.isClockIn ? "CLOCK IN" : "CLOCK OUT"}
@@ -177,7 +167,7 @@ export default function Dashboard() {
             <NavBar />
             <Header staff={tempStaff} />
             <ClockWarningBanner tableClockList={tableClockList} />
-            <div className="flex-1 w-full min-h-60 px-15 flex flex-col my-10">
+            <div className="flex-1 w-full min-h-60 px-15 flex flex-col my-5">
               <div className="font-vietnam text-md font-semibold text-text-primary mb-5">
                 <p>CLOCK IN/OUT HISTORY</p>
               </div>

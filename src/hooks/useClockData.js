@@ -18,8 +18,6 @@ export function useTableClockData(staffId, searchStartDate, searchEndDate) {
   return {
     tableClockList: tableClockQuery.data || [],
     isLoading: tableClockQuery.isLoading,
-    isFetching: tableClockQuery.isFetching,
-    refetchTableClockList: tableClockQuery.refetch,
   };
 }
 
@@ -33,7 +31,6 @@ export function useTodayClockData(staffId) {
   return {
     todayClockList: todayClockQuery.data || [],
     isLoading: todayClockQuery.isLoading,
-    isFetching: todayClockQuery.isFetching,
     refetchTodayClockList: todayClockQuery.refetch,
   };
 }

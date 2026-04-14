@@ -4,6 +4,13 @@ export const MODAL_IDS = {
   CLOCK_OUT_ALERT: "clockOutAlert",
 };
 
+export const BUTTON_TYPES = {
+  LOGIN: "login",
+  VIEW: "view",
+  CLOCK_IN: "clock-in",
+  CLOCK_OUT: "clock-out",
+};
+
 // Alert Configuration
 export const ALERT_CONFIG = {
   CLOCK_IN: {
@@ -12,7 +19,7 @@ export const ALERT_CONFIG = {
   },
   CLOCK_OUT: {
     heading: "Attention before action",
-    color: "alert",
+    color: "mocha",
   },
 };
 
