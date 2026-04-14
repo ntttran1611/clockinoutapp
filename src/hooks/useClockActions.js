@@ -1,5 +1,60 @@
 import dayjs from "dayjs";
-import { addClock, getCurrentClock, updateClock, updateStaff } from "../data";
+import {
+  addClock,
+  checkAndAutoClockOut,
+  getCurrentClock,
+  updateClock,
+  updateStaff,
+} from "../data";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function useAutoClockOutMutation() {
+  const queryClient = useQueryClient();
+  const autoClockOutMutation = useMutation({
+    mutationFn: (tempStaff) => checkAndAutoClockOut(tempStaff.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todayClockList"] });
+      queryClient.invalidateQueries({ queryKey: ["tableClockList"] });
+    },
+    onError: (error) => {
+      console.error("Error during auto clock-out: ", error);
+    },
+  });
+
+  return autoClockOutMutation;
+}
+
+export function useAddClockMutation() {
+  const queryClient = useQueryClient();
+  const addClockMutation = useMutation({
+    mutationFn: (newTimeRecord) => addClock(newTimeRecord),
+    onError: (error) => {
+      console.error("Error adding clock record: ", error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todayClockList"] });
+      queryClient.invalidateQueries({ queryKey: ["tableClockList"] });
+    },
+  });
+
+  return addClockMutation;
+}
+
+export function useUpdateClockMutation() {
+  const queryClient = useQueryClient();
+  const updateClockMutation = useMutation({
+    mutationFn: (updatedClock) => updateClock(updatedClock),
+    onError: (error) => {
+      console.error("Error updating clock record: ", error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todayClockList"] });
+      queryClient.invalidateQueries({ queryKey: ["tableClockList"] });
+    },
+  });
+
+  return updateClockMutation;
+}
 
 export function useClockActions(
   tempStaff,
@@ -8,6 +63,7 @@ export function useClockActions(
   refetchTodayClockList,
 ) {
   const handleClockIn = async () => {
+    if (!tempStaff) return;
     const newTimeRecord = {
       startTime: dayjs().toISOString(),
       endTime: null,
@@ -23,11 +79,12 @@ export function useClockActions(
     };
     setStaff(updatedStaff);
     await updateStaff(updatedStaff);
-    await refetchTableClockList();
-    await refetchTodayClockList();
+    refetchTableClockList();
+    refetchTodayClockList();
   };
 
   const handleClockOut = async () => {
+    if (!tempStaff) return;
     if (tempStaff.currentClockId) {
       const data = await getCurrentClock(tempStaff.currentClockId);
       const updatedClock = { ...data, endTime: dayjs().toISOString() };
@@ -39,8 +96,8 @@ export function useClockActions(
       await updateClock(updatedClock);
       await updateStaff(updatedStaff);
       setStaff(updatedStaff);
-      await refetchTableClockList();
-      await refetchTodayClockList();
+      refetchTableClockList();
+      refetchTodayClockList();
     }
   };
 

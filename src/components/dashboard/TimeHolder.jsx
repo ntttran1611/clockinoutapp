@@ -1,7 +1,7 @@
 import TimeRecord from "./TimeRecord";
 export default function TimeHolder({ timeHolder }) {
   return (
-    <div className="w-full text-center text-text-secondary mt-2 font-vietnam font-extralight text-sm">
+    <div className="w-full text-center text-text-secondary font-vietnam font-extralight text-sm">
       {timeHolder === undefined ||
       timeHolder === null ||
       timeHolder.length == 0 ? (

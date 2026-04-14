@@ -3,7 +3,7 @@ import { IoAlertCircle } from "react-icons/io5";
 export function AlertModal({ id, action, heading, content, color }) {
   return (
     <dialog id={id} className="modal modal-bottom sm:modal-middle">
-      <div className="modal-box font-vietnam">
+      <div className="modal-box font-vietnam ">
         <h3
           className={`font-bold text-lg text-${color} flex items-center gap-1`}
         >
@@ -11,6 +11,10 @@ export function AlertModal({ id, action, heading, content, color }) {
           {heading}
         </h3>
         <p className="py-4 text-mocha">{content}</p>
+        <textarea
+          placeholder="Leave a note here if needed..."
+          className="textarea textarea-md w-full focus:outline-none"
+        ></textarea>
         <div className="modal-action">
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}

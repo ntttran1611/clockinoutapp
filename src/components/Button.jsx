@@ -3,6 +3,12 @@ export default function Button({ type, onClick, typeName, children }) {
     if (typeName === "login") {
       return "bg-mocha w-full text-center py-2 text-white font-medium shadow-bold cursor-pointer font-vietnam";
     }
+    if (typeName === "clock-in") {
+      return "bg-sky-mist-100 w-full text-center p-4 text-white font-medium shadow-bold cursor-pointer font-vietnam";
+    }
+    if (typeName === "clock-out") {
+      return "bg-mocha w-full text-center p-4 text-white font-medium shadow-bold cursor-pointer font-vietnam";
+    }
     if (typeName === "icon-primary") {
       return "bg-mocha rounded-2xl text-center p-2 text-white cursor-pointer text-sm";
     }

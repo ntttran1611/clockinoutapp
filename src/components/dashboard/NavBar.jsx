@@ -33,7 +33,7 @@ export default function NavBar() {
     clockSync(displayTime);
   }, []);
   return (
-    <div className="flex p-10 w-full justify-end font-vietnam items-center">
+    <div className="flex px-10 py-5 w-full justify-end font-vietnam items-center">
       <div className="font-extralight text-sm">
         <p className="flex items-center gap-1">
           <FiClock className="h-5 w-5 font-extrabold" />

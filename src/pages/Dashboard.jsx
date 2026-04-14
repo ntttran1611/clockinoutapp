@@ -10,8 +10,13 @@ import { startOfWeek, endOfWeek, convertToDateObject } from "../lib";
 
 import {
   useStaffInitialization,
-  useClockData,
-  useClockActions,
+  useTableClockData,
+  useTodayClockData,
+  useAutoClockOutMutation,
+  useStaffUpdateClockStatusMutation,
+  useAddClockMutation,
+  useUpdateClockMutation,
+  useUpdateStaffMutation,
 } from "../hooks";
 import { MODAL_IDS, ALERT_CONFIG } from "../lib/dashboardConstants";
 import dayjs from "dayjs";
@@ -28,20 +33,43 @@ export default function Dashboard() {
   const defaultEndOfWeek = convertToDateObject(endOfWeek(dayjs()));
   const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
-  const {
-    todayClockList,
-    tableClockList,
-    isLoading,
-    refetchTableClockList,
-    refetchTodayClockList,
-  } = useClockData(searchStartDate, searchEndDate);
-  const { tempStaff, setStaff } = useStaffInitialization();
-  const { handleClockIn, handleClockOut } = useClockActions(
-    tempStaff,
-    setStaff,
-    refetchTableClockList,
-    refetchTodayClockList,
+  //Staff
+  const { tempStaff, refetchStaff, isStaffLoading } = useStaffInitialization();
+  const updateStaffMutation = useUpdateStaffMutation();
+  const updateStaffClockStatusMutation = useStaffUpdateClockStatusMutation();
+  //Clock Data
+  const { tableClockList, isTableClockLoading, refetchTableClockList } =
+    useTableClockData(tempStaff?.id, searchStartDate, searchEndDate);
+  const { todayClockList, isTodayClockLoading } = useTodayClockData(
+    tempStaff?.id,
   );
+  //Clock Actions
+  const autoClockOutMutation = useAutoClockOutMutation();
+  const addNewClockMutation = useAddClockMutation();
+  const updateCurrentClockMutation = useUpdateClockMutation();
+
+  useEffect(() => {
+    async function checkAutoClockOut() {
+      if (!tempStaff) return;
+      try {
+        const data = await autoClockOutMutation.mutateAsync(tempStaff);
+        if (
+          data?.updated > 0 &&
+          tempStaff.isClockIn &&
+          tempStaff.currentClockId
+        ) {
+          await updateStaffClockStatusMutation.mutateAsync({
+            staffID: tempStaff.id,
+            isClockIn: false,
+            currentClockId: null,
+          });
+        }
+      } catch (error) {
+        console.error("Error checking auto clock out: ", error);
+      }
+    }
+    checkAutoClockOut();
+  }, [tempStaff]);
 
   const handleClockBtnClicked = () => {
     if (!tempStaff.isClockIn) {
@@ -55,29 +83,78 @@ export default function Dashboard() {
     refetchTableClockList();
   };
 
-  return tempStaff ? (
+  const handleClockIn = async () => {
+    if (!tempStaff) return;
+    const newTimeRecord = {
+      startTime: dayjs().toISOString(),
+      endTime: null,
+      staffId: tempStaff.id,
+      branch: localStorage.getItem("branch"),
+    };
+
+    try {
+      const newAddedClock =
+        await addNewClockMutation.mutateAsync(newTimeRecord);
+
+      if (newAddedClock && newAddedClock.length > 0) {
+        const updatedStaff = {
+          ...tempStaff,
+          isClockIn: true,
+          currentClockId: newAddedClock[0].id,
+        };
+        await updateStaffMutation.mutateAsync(updatedStaff);
+      }
+    } catch (error) {
+      console.error("Error during clock in process: ", error);
+    }
+  };
+
+  const handleClockOut = async () => {
+    if (!tempStaff) return;
+    if (tempStaff.currentClockId) {
+      const data = todayClockList.find(
+        (clock) => clock.id === tempStaff.currentClockId,
+      );
+      const updatedClock = { ...data, endTime: dayjs().toISOString() };
+      try {
+        await updateCurrentClockMutation.mutateAsync(updatedClock);
+
+        const updatedStaff = {
+          ...tempStaff,
+          isClockIn: false,
+          currentClockId: null,
+        };
+
+        await updateStaffMutation.mutateAsync(updatedStaff);
+      } catch (error) {
+        console.error("Error during clock out process: ", error);
+      }
+    }
+  };
+
+  return !isStaffLoading ? (
     <>
       <AlertModal
         id={MODAL_IDS.CLOCK_IN_ALERT}
         heading={ALERT_CONFIG.CLOCK_IN.heading}
-        content={`Hi ${tempStaff.firstName}, are you sure to clock in?`}
+        content={`Hi ${tempStaff.firstName}, are you ready to START the shift?`}
         color={ALERT_CONFIG.CLOCK_IN.color}
         action={handleClockIn}
       />
       <AlertModal
         id={MODAL_IDS.CLOCK_OUT_ALERT}
         heading={ALERT_CONFIG.CLOCK_OUT.heading}
-        content={`Hi ${tempStaff.firstName}, are you sure to clock out?`}
+        content={`Hi ${tempStaff.firstName}, are you sure to CLOSE the shift?`}
         color={ALERT_CONFIG.CLOCK_OUT.color}
         action={handleClockOut}
       />
 
       <div className="relative h-screen flex">
         <SideBar footer={"CICO System"}>
-          <div className="px-4">
+          <div className="px-4 w-full flex flex-col items-center gap-5">
             <Button
               type="login"
-              typeName="login"
+              typeName={!tempStaff.isClockIn ? "clock-in" : "clock-out"}
               onClick={handleClockBtnClicked}
             >
               {!tempStaff.isClockIn ? "CLOCK IN" : "CLOCK OUT"}
@@ -90,7 +167,7 @@ export default function Dashboard() {
             <NavBar />
             <Header staff={tempStaff} />
             <ClockWarningBanner tableClockList={tableClockList} />
-            <div className="flex-1 w-full min-h-60 px-15 flex flex-col my-10">
+            <div className="flex-1 w-full min-h-60 px-15 flex flex-col my-5">
               <div className="font-vietnam text-md font-semibold text-text-primary mb-5">
                 <p>CLOCK IN/OUT HISTORY</p>
               </div>
@@ -106,7 +183,7 @@ export default function Dashboard() {
               />
               <ClockHistoryTable
                 tableClockList={tableClockList}
-                isLoading={isLoading}
+                isLoading={isTableClockLoading}
               />
             </div>
           </div>
