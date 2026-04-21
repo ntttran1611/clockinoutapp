@@ -10,6 +10,7 @@ import ClockManager from "./pages/ClockManager";
 import StatManager from "./pages/StatManager";
 import { UserProvider } from "./context/UserContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import BranchManager from "./pages/BranchManager";
 function App() {
   return (
     <QueryClientProvider client={new QueryClient()}>
@@ -25,7 +26,8 @@ function App() {
               <Route index element={<ClockManager />} />
               <Route path="clocks" element={<ClockManager />} />
               <Route path="staff" element={<StaffManager />} />
-              <Route path="stat" element={<StatManager />} />
+              <Route path="branches" element={<BranchManager />} />
+              <Route path="analytics" element={<StatManager />} />
             </Route>
             <Route path="*" element={<PageNotFound />} />
           </Routes>

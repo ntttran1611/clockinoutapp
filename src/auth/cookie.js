@@ -12,6 +12,10 @@ export function getCookie(name) {
   Cookies.get(name);
 }
 
+export function setAccountCookie(data) {
+  Cookies.set("user", data);
+}
+
 export function removeCookie(name) {
   Cookies.remove(name);
 }

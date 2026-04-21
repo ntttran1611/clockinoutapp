@@ -1,21 +1,11 @@
-/**
- * TODO:
- * 1/ Clean up folders - DONE
- * 1/ Create a sidebar for the admin page including: clocks, staff, statistics - DONE
- * 2/ Set Routes for these breadcrumbs - DONE
- * 2/ Implement background color of tabs changes as routes changing - DONE
- * 3/ Authentication - DONE
- * 4/ Display clock table
- *
- */
-
 import { useEffect, useState, useRef } from "react";
 import { SideBar, NavBar } from "../components";
-import { FaRegClock } from "react-icons/fa";
+import TabLink from "../components/admindashboard/TabLink";
+import { FaRegClock, FaStore } from "react-icons/fa";
 import { IoBarChartOutline } from "react-icons/io5";
 import { MdPeopleAlt } from "react-icons/md";
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useUser, UserProvider } from "../context/UserContext";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -44,66 +34,72 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    if (document.getElementById("tabs")) {
-      const tabList = document.getElementById("tabs").children;
-      for (let tab of tabList) {
-        tab.className = "";
-      }
-      document.getElementById(`${tabOrder}`).className =
-        "text-white font-medium";
-      setTabBgPos(tabSize.height * (tabOrder - 1));
-    }
+    setTabBgPos(tabSize.height * (tabOrder - 1));
   }, [tabOrder]);
+
   return tempUser ? (
-    <div className="h-screen flex font-vietnam">
-      <SideBar footer="Sweeties Administrator">
-        <div id="tabs" className="relative w-full font-light">
-          <div
-            style={{
-              top: tabBgPos,
-              left: 0,
-              width: tabSize.width,
-              height: tabSize.height,
-              position: "absolute",
-              backgroundColor: "#8ba888",
-              zIndex: -1,
-              transition: "top 0.2s ease",
-            }}
-          ></div>
-          <Link
-            ref={tabRef}
-            id="1"
-            to="clocks"
-            onClick={() => setTabOrder(1)}
-            className="text-white font-medium"
-          >
-            <div className="flex w-full items-center justify gap-2 px-5 py-3">
-              <FaRegClock className="h-5 w-5" /> <p>Clocks</p>
-            </div>
-          </Link>
-          <Link id="2" className="" to="staff" onClick={() => setTabOrder(2)}>
-            <div className="flex w-full items-center justify gap-2 px-5 py-3 ">
-              <MdPeopleAlt className="h-5 w-5" /> <p>Staff</p>
-            </div>
-          </Link>
-          <Link id="3" className="" to="stat" onClick={() => setTabOrder(3)}>
-            <div className="flex w-full items-center justify gap-2 px-5 py-3 ">
-              <IoBarChartOutline className="h-5 w-5" /> <p>Statistics</p>
-            </div>
-          </Link>
-        </div>
-      </SideBar>
-      <div className="flex-1 h-screen hidden lg:block">
-        <div className="flex flex-col h-full">
-          <div className="basis-1/6">
-            <NavBar title={`Welcome back, Sweeties Admin!`} />
+    <UserProvider>
+      <div className="h-screen flex font-vietnam">
+        <SideBar footer="Sweeties Administrator">
+          <div id="tabs" className="relative w-full font-light">
+            <div
+              style={{
+                top: tabBgPos,
+                left: 0,
+                width: tabSize.width,
+                height: tabSize.height,
+                position: "absolute",
+                backgroundColor: "rgb(66, 43, 35, 0.8)",
+                zIndex: -1,
+                transition: "top 0.2s ease",
+              }}
+            ></div>
+            <TabLink
+              ref={tabRef}
+              tabOrder={tabOrder}
+              id={1}
+              to="clocks"
+              onClick={() => setTabOrder(1)}
+              icon={FaRegClock}
+              label="Clocks"
+            />
+            <TabLink
+              tabOrder={tabOrder}
+              id={2}
+              to="staff"
+              onClick={() => setTabOrder(2)}
+              icon={MdPeopleAlt}
+              label="Staff"
+            />
+            <TabLink
+              tabOrder={tabOrder}
+              id={3}
+              to="branches"
+              onClick={() => setTabOrder(3)}
+              icon={FaStore}
+              label="Branches"
+            />
+            <TabLink
+              tabOrder={tabOrder}
+              id={4}
+              to="analytics"
+              onClick={() => setTabOrder(4)}
+              icon={IoBarChartOutline}
+              label="Analytics"
+            />
           </div>
-          <div className="basis-5/6">
-            <Outlet />
+        </SideBar>
+        <div className="flex-1 h-screen hidden lg:block">
+          <div className="flex flex-col h-full">
+            <NavBar welcomeMessage={`Welcome back, is today a busy day?`} />
+            <div className="flex-1">
+              <hr className="text-mocha-30" />
+              <Outlet />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </UserProvider>
   ) : (
     <div className="h-screen flex items-center justify-center">
       <span className="loading loading-spinner loading-xl "></span>

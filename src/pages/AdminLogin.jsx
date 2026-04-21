@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { InputField, Button, Label, ErrorModal } from "../components";
 import { useNavigate } from "react-router-dom";
-import { auth, setAccessCookie, setRefreshCookie } from "../auth";
+import {
+  auth,
+  setAccessCookie,
+  setAccountCookie,
+  setRefreshCookie,
+} from "../auth";
 import { useUser } from "../context/UserContext";
 
 export default function AdminLogin() {
-  localStorage.removeItem("admin");
   const { setUser } = useUser();
   const [account, setAccount] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
@@ -20,7 +24,8 @@ export default function AdminLogin() {
         if (data) {
           console.log(data);
           setUser(data);
-          (setAccessCookie(data), setRefreshCookie(data));
+          setAccessCookie(data);
+          setRefreshCookie(data);
           navigate("/admin", { state: {} });
         } else {
           setLoginError("Invalid username or password");

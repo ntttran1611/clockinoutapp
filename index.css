@@ -109,3 +109,13 @@
 html {
   font-family: var(--font-vietnam);
 }
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  overflow-y: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
