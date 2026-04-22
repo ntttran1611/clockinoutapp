@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useRef, useEffect } from "react";
 import { clockSync } from "../../lib/time";
 import { useUser } from "../../context/UserContext";
-import { removeCookie, signOut } from "../../auth";
+import { removeFromStorage, signOut } from "../../auth";
 export default function NavBar({ welcomeMessage }) {
   const location = useLocation();
   const isInStaffLogin = location.pathname === "/dashboard";
@@ -13,12 +13,12 @@ export default function NavBar({ welcomeMessage }) {
   const clockRef = useRef();
   function handleLogOut() {
     if (isInStaffLogin) {
-      localStorage.removeItem("staff");
+      removeFromStorage("staff");
     } else {
-      localStorage.removeItem("User");
       setUser(null);
-      removeCookie("access_token");
-      removeCookie("refresh_token");
+      removeFromStorage("access_token");
+      removeFromStorage("refresh_token");
+      removeFromStorage("user");
       signOut();
     }
   }

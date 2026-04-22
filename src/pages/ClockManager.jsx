@@ -1,3 +1,6 @@
+import { useUser } from "../context/UserContext";
+
 export default function ClockManager() {
-  return <div>Clock</div>;
+  const { tempUser } = useUser();
+  return tempUser && <div>ClocK | {tempUser.user.id}</div>;
 }

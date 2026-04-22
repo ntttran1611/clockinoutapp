@@ -1,21 +1,21 @@
-import Cookies from "js-cookie";
+// localStorage implementation for user and token storage
 
-export function setAccessCookie(data) {
-  Cookies.set("access_token", data.session.access_token);
+export function setAccessTokenToStorage(data) {
+  localStorage.setItem("access_token", data.session.access_token);
 }
 
-export function setRefreshCookie(data) {
-  Cookies.set("refresh_token", data.session.refresh_token);
+export function setRefreshTokenToStorage(data) {
+  localStorage.setItem("refresh_token", data.session.refresh_token);
 }
 
-export function getCookie(name) {
-  Cookies.get(name);
+export function getItemFromStorage(name) {
+  return localStorage.getItem(name);
 }
 
-export function setAccountCookie(data) {
-  Cookies.set("user", data);
+export function setAccountToStorage(data) {
+  localStorage.setItem("user", JSON.stringify(data));
 }
 
-export function removeCookie(name) {
-  Cookies.remove(name);
+export function removeFromStorage(name) {
+  localStorage.removeItem(name);
 }

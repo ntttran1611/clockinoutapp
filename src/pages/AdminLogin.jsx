@@ -3,9 +3,8 @@ import { InputField, Button, Label, ErrorModal } from "../components";
 import { useNavigate } from "react-router-dom";
 import {
   auth,
-  setAccessCookie,
-  setAccountCookie,
-  setRefreshCookie,
+  setAccessTokenToStorage,
+  setRefreshTokenToStorage,
 } from "../auth";
 import { useUser } from "../context/UserContext";
 
@@ -22,11 +21,11 @@ export default function AdminLogin() {
     } else {
       auth(account).then((data) => {
         if (data) {
-          console.log(data);
+          //console.log(data);
           setUser(data);
-          setAccessCookie(data);
-          setRefreshCookie(data);
-          navigate("/admin", { state: {} });
+          setAccessTokenToStorage(data);
+          setRefreshTokenToStorage(data);
+          navigate("/admin/clocks", { state: {} });
         } else {
           setLoginError("Invalid username or password");
           document.getElementById("adminError").showModal();

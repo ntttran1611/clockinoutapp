@@ -1,13 +1,17 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { getCookie, removeCookie, setAccountCookie } from "../auth";
+import {
+  getItemFromStorage,
+  removeFromStorage,
+  setAccountToStorage,
+} from "../auth";
 
-const UserContext = createContext();
+export const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [tempUser, setUser] = useState(null);
   //load User from localStorage on first render
-  /*useEffect(() => {
-    const storedUser = getCookie("user");
+  useEffect(() => {
+    const storedUser = getItemFromStorage("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -15,11 +19,9 @@ export function UserProvider({ children }) {
   //save User to localStorage whenever User changes
   useEffect(() => {
     if (tempUser) {
-      setAccountCookie(tempUser);
-    } else {
-      removeCookie("user");
+      setAccountToStorage(tempUser);
     }
-  }, [tempUser]);*/
+  }, [tempUser]);
 
   return (
     <UserContext.Provider value={{ tempUser, setUser }}>

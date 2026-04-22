@@ -27,3 +27,34 @@ export async function signOut() {
     console.error("Unexpected error: ", err);
   }
 }
+
+export async function renewAccessToken() {
+  try {
+    const refreshToken = localStorage.getItem("refresh_token");
+
+    if (!refreshToken) {
+      console.error("No refresh token available");
+      return null;
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: refreshToken,
+    });
+
+    if (error) {
+      console.error("Error refreshing token: ", error);
+      return null;
+    }
+
+    // Update the access token in localStorage
+    if (data.session) {
+      localStorage.setItem("access_token", data.session.access_token);
+      localStorage.setItem("refresh_token", data.session.refresh_token);
+    }
+
+    return data.session.access_token;
+  } catch (err) {
+    console.error("Unexpected error refreshing token: ", err);
+    return null;
+  }
+}
