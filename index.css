@@ -9,6 +9,7 @@
 
 @theme {
   --color-bar: #f7f3ed;
+  --color-tool-bar: rgb(241, 235, 225, 0.5);
   --color-fantasy-50: rgb(247, 243, 237, 0.5);
   --color-primary-bg: #e1dbd3;
   --color-secondary-bg: #d9d9d9;
