@@ -1,7 +1,9 @@
-export default function LoadingSpinner() {
+export default function LoadingSpinner({ isFullScreen }) {
   return (
-    <div className="h-screen flex items-center justify-center">
-      <span className="loading loading-spinner loading-xl "></span>
+    <div
+      className={`${isFullScreen ? "h-screen" : ""} flex items-center justify-center`}
+    >
+      <span className="loading loading-spinner loading-xl"></span>
     </div>
   );
 }

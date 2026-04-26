@@ -4,8 +4,9 @@ import {
   getClockoutMethodColor,
 } from "../../lib/dashboardUtils";
 import { TABLE_HEADERS } from "../../lib/dashboardConstants";
+import LoadingSpinner from "../LoadingSpinner";
 
-export function ClockHistoryTable({ tableClockList, isLoading }) {
+export function ClockHistoryTable({ tableClockList, isFetching }) {
   return (
     <div className="max-h-[300px] overflow-y-auto overflow-x-auto no-scrollbar transition-all duration-500 ease-in-out w-full">
       <table className="table font-vietnam text-xs text-text-primary table-pin-rows my-5">
@@ -16,7 +17,7 @@ export function ClockHistoryTable({ tableClockList, isLoading }) {
             ))}
           </tr>
         </thead>
-        {isLoading ? (
+        {isFetching ? (
           <tbody>
             <tr>
               <td colSpan="7" className="text-center py-8">
@@ -31,7 +32,13 @@ export function ClockHistoryTable({ tableClockList, isLoading }) {
               return (
                 <tr
                   key={clock.id}
-                  className={!clock.endTime ? "bg-sky-mist-20" : ""}
+                  className={
+                    !clock.endTime
+                      ? "bg-sky-mist-20"
+                      : clock.clockoutMethod == "auto-generated"
+                        ? "bg-alert-10 cursor-pointer"
+                        : ""
+                  }
                 >
                   <td>{row.clockInDate}</td>
                   <td>{row.clockInTime}</td>

@@ -17,7 +17,7 @@ export function useTableClockData(staffId, searchStartDate, searchEndDate) {
 
   return {
     tableClockList: tableClockQuery.data || [],
-    isLoading: tableClockQuery.isLoading,
+    isFetching: tableClockQuery.isFetching,
     refetchTableClockList: tableClockQuery.refetch,
   };
 }
