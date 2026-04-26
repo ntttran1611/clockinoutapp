@@ -19,3 +19,5 @@ export { default as Select } from "./dropdown/Select.jsx";
 export { default as SelectLog } from "./dropdown/SelectLog.jsx";
 export { default as SelectDropdown } from "./dropdown/SelectDropdown.jsx";
 export { default as SelectOption } from "./dropdown/SelectOption.jsx";
+
+export { default as DateTimeInput } from "./DateTimeInput.jsx";

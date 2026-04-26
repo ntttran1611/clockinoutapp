@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { Button, SideBar, NavBar, TimeHolder, AlertModal } from "../components";
+import {
+  Button,
+  SideBar,
+  NavBar,
+  TimeHolder,
+  AlertModal,
+  DateTimeInput,
+} from "../components";
 import {
   ClockWarningBanner,
   ClockHistoryTable,
-  DateRangeFilter,
 } from "../components/staffdashboard";
 
-import { startOfWeek, endOfWeek, convertToDateObject } from "../lib";
+import { startOfWeek, endOfWeek } from "../lib";
 
 import {
   useStaffInitialization,
@@ -35,8 +41,8 @@ dayjs.extend(customParseFormat);
 
 export default function Dashboard() {
   //Dashboard States
-  const defaultStartOfWeek = convertToDateObject(startOfWeek(dayjs()));
-  const defaultEndOfWeek = convertToDateObject(endOfWeek(dayjs()));
+  const defaultStartOfWeek = startOfWeek(dayjs()).format("YYYY-MM-DD");
+  const defaultEndOfWeek = endOfWeek(dayjs()).format("YYYY-MM-DD");
   const [searchStartDate, setStartDate] = useState(defaultStartOfWeek);
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
   const [clockNote, setClockNote] = useState("");
@@ -197,15 +203,26 @@ export default function Dashboard() {
                 <p>CLOCK IN/OUT HISTORY</p>
               </div>
 
-              <DateRangeFilter
-                searchStartDate={searchStartDate}
-                setStartDate={setStartDate}
-                searchEndDate={searchEndDate}
-                setEndDate={setEndDate}
-                defaultStartOfWeek={defaultStartOfWeek}
-                defaultEndOfWeek={defaultEndOfWeek}
-                onViewClicked={handleViewBtnClicked}
-              />
+              <div className="flex items-center gap-4">
+                <DateTimeInput
+                  label="From"
+                  id="startDate"
+                  defaultValue={searchStartDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <DateTimeInput
+                  label="To"
+                  id="endDate"
+                  defaultValue={searchEndDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+                <button
+                  onClick={handleViewBtnClicked}
+                  className="btn self-end font-regular bg-sky-mist-100 text-white"
+                >
+                  View
+                </button>
+              </div>
               <ClockHistoryTable
                 tableClockList={tableClockList}
                 isLoading={isTableClockLoading}
@@ -216,6 +233,6 @@ export default function Dashboard() {
       </div>
     </>
   ) : (
-    <LoadingSpinner />
+    <LoadingSpinner isFullScreen={true} />
   );
 }
