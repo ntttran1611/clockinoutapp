@@ -21,10 +21,8 @@ export default function ClockManager() {
   const [weekStart, setWeekStart] = useState("");
   const [weekEnd, setWeekEnd] = useState("");
   const [selectedStaffId, setSelectedStaffId] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [searchStartDate, setSearchStartDate] = useState(null);
-  const [searchEndDate, setSearchEndDate] = useState(null);
+  const [searchStartDate, setStartDate] = useState("");
+  const [searchEndDate, setEndDate] = useState("");
 
   // data queries
   const { tableClockList, isFetching, refetchTableClockList } =
@@ -57,14 +55,6 @@ export default function ClockManager() {
 
   const handleViewClick = () => {
     if (!selectedStaffId || !startDate || !endDate) return;
-
-    // Convert date strings to date objects
-    const startDateObj = convertToDateObject(dayjs(startDate));
-    const endDateObj = convertToDateObject(dayjs(endDate));
-
-    setSearchStartDate(startDateObj);
-    setSearchEndDate(endDateObj);
-
     // Trigger the refetch
     refetchTableClockList();
   };

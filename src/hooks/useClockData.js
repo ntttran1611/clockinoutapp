@@ -9,8 +9,8 @@ export function useTableClockData(staffId, searchStartDate, searchEndDate) {
     queryFn: () =>
       getClockListWithinRange(
         staffId,
-        convertDateObjToISOString(searchStartDate),
-        convertDateObjToISOString(searchEndDate),
+        dayjs(searchStartDate).toISOString(),
+        dayjs(searchEndDate).toISOString(),
       ),
     enabled: !!staffId && !!searchStartDate && !!searchEndDate,
   });
