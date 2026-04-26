@@ -9,6 +9,7 @@
 
 @theme {
   --color-bar: #f7f3ed;
+  --color-tool-bar: rgb(241, 235, 225, 0.5);
   --color-fantasy-50: rgb(247, 243, 237, 0.5);
   --color-primary-bg: #e1dbd3;
   --color-secondary-bg: #d9d9d9;
@@ -21,6 +22,7 @@
   --color-sky-mist-100: rgb(117, 136, 156);
   --color-text-secondary: #605959;
   --color-alert: #6d120b;
+  --color-alert-10: rgb(109, 18, 11, 0.1);
   --color-almond: #baa49f;
   --color-almond-40: rgb(186, 164, 159, 0.4);
   --font-vietnam: "Be Vietnam Pro", sans-serif;

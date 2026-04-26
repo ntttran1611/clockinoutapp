@@ -82,7 +82,7 @@ export function DateRangeFilter({
         }
       />
       <div className="tooltip" data-tip="view">
-        <Button typeName="icon-primary" onClick={onViewClicked}>
+        <Button variant="icon-primary" onClick={onViewClicked}>
           <FaEye />
         </Button>
       </div>

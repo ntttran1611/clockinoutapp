@@ -15,13 +15,6 @@ const TAB_MAP = {
   analytics: 4,
 };
 
-const REVERSE_TAB_MAP = {
-  1: "clocks",
-  2: "staff",
-  3: "branches",
-  4: "analytics",
-};
-
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
