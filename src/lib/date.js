@@ -4,6 +4,14 @@ import { regexNumber } from "./regex";
 
 dayjs.extend(isoWeek);
 
+export function formatDate(date) {
+  return dayjs(date).format("DD/MM/YYYY");
+}
+
+export function formatTime(date) {
+  return dayjs(date).format("HH:mm:ss");
+}
+
 export function startOfWeek(date) {
   return date.startOf("isoWeek");
 }

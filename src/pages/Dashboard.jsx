@@ -169,6 +169,7 @@ export default function Dashboard() {
         action={handleClockIn}
         textContent={clockNote}
         setTextContent={setClockNote}
+        isWithTextNote={true}
       />
       <AlertModal
         id={MODAL_IDS.CLOCK_OUT_ALERT}
@@ -178,6 +179,7 @@ export default function Dashboard() {
         action={handleClockOut}
         textContent={clockNote}
         setTextContent={setClockNote}
+        isWithTextNote={true}
       />
 
       <div className="relative h-screen flex">

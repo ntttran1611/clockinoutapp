@@ -8,6 +8,7 @@ export function AlertModal({
   color,
   textContent,
   setTextContent,
+  isWithTextNote,
 }) {
   return (
     <dialog id={id} className="modal modal-bottom sm:modal-middle">
@@ -19,12 +20,15 @@ export function AlertModal({
           {heading}
         </h3>
         <p className="py-4 text-mocha">{content}</p>
-        <textarea
-          value={textContent}
-          onChange={(e) => setTextContent(e.target.value)}
-          placeholder="Leave a note here if needed..."
-          className="textarea textarea-md w-full focus:outline-none"
-        ></textarea>
+        {isWithTextNote && (
+          <textarea
+            value={textContent}
+            onChange={(e) => setTextContent(e.target.value)}
+            placeholder="Leave a note here if needed..."
+            className="textarea textarea-md w-full focus:outline-none"
+          ></textarea>
+        )}
+
         <div className="modal-action">
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}
@@ -57,6 +61,35 @@ export function ErrorModal({ id, heading, content }) {
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>
+    </dialog>
+  );
+}
+
+export function FormModal({ id, heading, action, children, color, onClose }) {
+  return (
+    <dialog id={id} className="modal modal-bottom sm:modal-middle" onClose={onClose}>
+      <div className="modal-box font-vietnam ">
+        <h3
+          className={`font-bold text-lg text-${color}  flex items-center gap-1`}
+        >
+          {heading}
+        </h3>
+        {children}
+        <div className="modal-action">
+          <form method="dialog">
+            {/* if there is a button in form, it will close the modal */}
+            <button
+              className={`btn bg-${color} text-white font-light font-vietnam mr-2 tracking-wide`}
+              onClick={action}
+            >
+              Confirm
+            </button>
+            <button className="btn text-text-primary border-none bg-secondary-bg font-light tracking-wide">
+              Close
+            </button>
+          </form>
+        </div>
+      </div>
     </dialog>
   );
 }
