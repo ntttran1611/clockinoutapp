@@ -7,3 +7,11 @@ export default function generateId() {
   }
   return id;
 }
+
+export function formatDecimal(decimal, decimalPlace) {
+  if (decimalPlace) {
+    return decimal.toFixed(decimalPlace);
+  }
+
+  return decimal.toFixed(2);
+}

@@ -5,7 +5,7 @@ export default function fromIntToTimeString(totalMiliSeconds) {
   // Convert to hh:mm:ss
   const hours = Math.floor(totalMiliSeconds / (1000 * 60 * 60));
   const minutes = Math.floor(
-    (totalMiliSeconds % (1000 * 60 * 60)) / (1000 * 60)
+    (totalMiliSeconds % (1000 * 60 * 60)) / (1000 * 60),
   );
   const seconds = Math.floor((totalMiliSeconds % (1000 * 60)) / 1000);
 
@@ -24,7 +24,7 @@ export function fromIntToDecimalHours(totalMiliSeconds) {
 
 //get the difference in hours between two timestamps
 export function getHourDiff(startTime, endTime) {
-  return dayjs(endTime).diff(startTime, "hours", true).toFixed(2);
+  return dayjs(endTime).diff(startTime, "hours", true);
 }
 
 export function clockSync(displayTime) {
