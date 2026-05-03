@@ -6,6 +6,7 @@ import {
   TimeHolder,
   AlertModal,
   DateTimeInput,
+  LoadingSpinner,
 } from "../components";
 import {
   ClockWarningBanner,
@@ -33,7 +34,6 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Header from "../components/dashboard/Header";
-import LoadingSpinner from "../components/LoadingSpinner";
 import { getNoteOfLatestClockIn } from "../lib/dashboardUtils";
 
 dayjs.extend(utc);
@@ -169,6 +169,7 @@ export default function Dashboard() {
         action={handleClockIn}
         textContent={clockNote}
         setTextContent={setClockNote}
+        isWithTextNote={true}
       />
       <AlertModal
         id={MODAL_IDS.CLOCK_OUT_ALERT}
@@ -178,6 +179,7 @@ export default function Dashboard() {
         action={handleClockOut}
         textContent={clockNote}
         setTextContent={setClockNote}
+        isWithTextNote={true}
       />
 
       <div className="relative h-screen flex">

@@ -1,7 +1,7 @@
-export default function DateTimeInput({ label, id, defaultValue, onChange }) {
+export function DateTimeInput({ label, id, defaultValue, onChange }) {
   return (
     <section className="flex flex-col gap-2 text-text-primary">
-      <label className="text-base" htmlFor={id} name={id}>
+      <label className="text-sm" htmlFor={id} name={id}>
         {label}
       </label>
       <input

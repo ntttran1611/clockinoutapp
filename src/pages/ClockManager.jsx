@@ -1,101 +1,219 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-import ManagerLayout from "../components/admindashboard/ManagerLayout";
-import ToolBarContainer from "../components/admindashboard/toptoolbar/ToolBarContainer";
-import DateTimeInput from "../components/DateTimeInput";
-import Select from "../components/Select";
-import { Button } from "../components";
+import {
+  AlertModal,
+  Button,
+  ClockReviewModal,
+  ErrorModal,
+  FormModal,
+  TimeInput,
+  WageSummaryDisplay,
+  DateTimeInput,
+  ManagerLayout,
+  ToolBarContainer,
+  LoadingSpinner,
+} from "../components";
 import { ClockHistoryTable } from "../components/staffdashboard";
 import { useUser } from "../context/UserContext";
 import { getStaffList } from "../data/Staff";
-import { useStaffData, useTableClockData } from "../hooks";
-import { startOfWeek, endOfWeek, convertToDateObject } from "../lib/date";
-import LoadingSpinner from "../components/LoadingSpinner";
+import {
+  useStaffData,
+  useTableClockData,
+  useUpdateClockMutation,
+} from "../hooks";
+import {
+  startOfWeek,
+  endOfWeek,
+  formatDate,
+  formatTime,
+  formatDecimal,
+  getHourDiff,
+  exportClockTableToExcel,
+} from "../lib";
+import { Select } from "../components/Select.jsx";
 
 dayjs.extend(isoWeek);
 
 export default function ClockManager() {
   const { tempUser } = useUser();
-  const [staffOptions, setStaffOptions] = useState([]);
-  const [weekStart, setWeekStart] = useState("");
-  const [weekEnd, setWeekEnd] = useState("");
+  const [dateRange, setDateRange] = useState({
+    start: startOfWeek(dayjs()).format("YYYY-MM-DD"),
+    end: endOfWeek(dayjs()).format("YYYY-MM-DD"),
+  });
+
   const [selectedStaffId, setSelectedStaffId] = useState("");
-  const [searchStartDate, setStartDate] = useState("");
-  const [searchEndDate, setEndDate] = useState("");
+  const [selectedClock, setSelectedClock] = useState({});
+  const [enableReviewClock, setEnableReviewClock] = useState(false);
 
   // data queries
   const { tableClockList, isFetching, refetchTableClockList } =
-    useTableClockData(selectedStaffId, searchStartDate, searchEndDate);
+    useTableClockData(selectedStaffId, dateRange.start, dateRange.end);
   const { staffList, staffListIsFetching } = useStaffData();
 
+  //clock mutation
+  const updateClockMutation = useUpdateClockMutation();
+
+  //Derived state
+  const hasData = tableClockList.length > 0;
+  const canCalculate = hasData && !isFetching;
+  const selectedStaff = useMemo(
+    () => staffList?.find((staff) => staff.id == selectedStaffId) || null,
+    [selectedStaffId, staffList],
+  );
+  const hasUnverifiedClocks = useMemo(() => {
+    return tableClockList?.some(
+      (clock) =>
+        clock.clockoutMethod === "auto-generated" ||
+        clock.clockoutMethod === null,
+    );
+  }, [tableClockList]);
+  const totalWorkingHours = useMemo(() => {
+    const initialValue = 0;
+    return tableClockList?.reduce(
+      (total, clock) => total + getHourDiff(clock.startTime, clock.endTime),
+      initialValue,
+    );
+  }, [tableClockList]);
+
   useEffect(() => {
-    // Set default week dates
-    const today = dayjs();
-    const startDateStr = startOfWeek(today).format("YYYY-MM-DD");
-    const endDateStr = endOfWeek(today).format("YYYY-MM-DD");
-    setWeekStart(startDateStr);
-    setWeekEnd(endDateStr);
-    setStartDate(startDateStr);
-    setEndDate(endDateStr);
-  }, []);
+    const clockReviewModal = document.querySelector("#CLOCK_REVIEW_MODAL");
+    if (!clockReviewModal) return;
+    clockReviewModal.showModal();
+  }, [enableReviewClock]);
+
+  useEffect(() => {
+    setSelectedStaffId(staffList?.[0]?.id || "");
+  }, [staffList]);
 
   const handleDateChange = (e) => {
     const { id, value } = e.target;
-    if (id === "startDate") {
-      setStartDate(value);
-    } else if (id === "endDate") {
-      setEndDate(value);
+    id === "startDate"
+      ? setDateRange({ ...dateRange, start: value })
+      : setDateRange({ ...dateRange, end: value });
+  };
+
+  const handleExportClick = () => {
+    if (hasUnverifiedClocks) {
+      document.querySelector("#alertModal").showModal();
+    } else {
+      exportExcel();
     }
   };
 
-  const handleStaffChange = (e) => {
-    setSelectedStaffId(e.target.value);
+  const exportExcel = () => {
+    const staffName = selectedStaff
+      ? `${selectedStaff.firstName}_${selectedStaff.lastName}`
+      : "Unknown";
+
+    exportClockTableToExcel(
+      tableClockList,
+      staffName,
+      dateRange.start,
+      dateRange.end,
+    );
   };
 
-  const handleViewClick = () => {
-    if (!selectedStaffId || !startDate || !endDate) return;
-    // Trigger the refetch
-    refetchTableClockList();
+  const handleConfirmUpdate = async (updatedClock) => {
+    try {
+      await updateClockMutation.mutateAsync(updatedClock);
+    } catch (error) {
+      console.error("Error updating clock:", error);
+    }
+    setEnableReviewClock(false);
   };
 
   return !staffListIsFetching ? (
-    <ManagerLayout tabTitle="Clocks">
-      <ToolBarContainer>
-        <DateTimeInput
-          label="From"
-          id="startDate"
-          defaultValue={weekStart}
-          onChange={handleDateChange}
+    <>
+      <AlertModal
+        id="alertModal"
+        action={exportExcel}
+        heading={"Attention before action"}
+        color="mocha"
+        content="There are shifts that have not been closed or verified. Would you to like to continue?"
+      />
+      <ErrorModal
+        id="CALCULATE_WAGE_ERROR"
+        heading={"Unverified shifts"}
+        content={
+          "There are shifts that have not been closed or verified. Please review them first."
+        }
+      />
+
+      {enableReviewClock && (
+        <ClockReviewModal
+          staff={selectedStaff}
+          clock={selectedClock}
+          onClose={() => {
+            setEnableReviewClock(false);
+          }}
+          onConfirm={handleConfirmUpdate}
         />
-        <DateTimeInput
-          label="To"
-          id="endDate"
-          defaultValue={weekEnd}
-          onChange={handleDateChange}
-        />
-        <Select
-          list={staffList}
-          selectLabel="Staff Member"
-          onChange={handleStaffChange}
-        />
-        <button
-          onClick={handleViewClick}
-          className="btn font-regular bg-sky-mist-100 text-white"
-        >
-          View
-        </button>
-        <button className="btn font-regular bg-mocha text-white">
-          Export PDF
-        </button>
-      </ToolBarContainer>
-      <section className="grow shadow-xl rounded-xl px-7 border border-mocha-30">
-        <ClockHistoryTable
-          tableClockList={tableClockList}
-          isFetching={isFetching}
-        />
-      </section>
-    </ManagerLayout>
+      )}
+
+      <ManagerLayout tabTitle="Clocks">
+        <ToolBarContainer>
+          <DateTimeInput
+            label="From"
+            id="startDate"
+            defaultValue={dateRange.start}
+            onChange={handleDateChange}
+          />
+          <DateTimeInput
+            label="To"
+            id="endDate"
+            defaultValue={dateRange.end}
+            onChange={handleDateChange}
+          />
+          <Select
+            list={staffList}
+            selectLabel="Staff Member"
+            onChange={(e) => setSelectedStaffId(e.target.value)}
+          />
+          <button
+            disabled={!canCalculate}
+            onClick={handleExportClick}
+            className="btn font-regular bg-mocha text-white"
+          >
+            Export Excel
+          </button>
+        </ToolBarContainer>
+        {canCalculate && (
+          <WageSummaryDisplay
+            wageSnapshot={{
+              startDate: dateRange.start,
+              endDate: dateRange.end,
+              totalWorkingHours: totalWorkingHours,
+            }}
+            selectedStaff={selectedStaff}
+            hasUnverifiedClocks={hasUnverifiedClocks}
+          />
+        )}
+        <section className="grow shadow-xl rounded-xl p-7 border border-mocha-30">
+          <div className="flex justify-between">
+            <p className="ml-4 text-xs text-mocha-50">
+              Date range: {formatDate(dateRange.start)} -
+              {formatDate(dateRange.end)}
+            </p>
+            <p className="ml-4 text-xs text-mocha-50">
+              Staff:{" "}
+              {selectedStaff &&
+                `${selectedStaff.firstName} ${selectedStaff.lastName}`}
+            </p>
+          </div>
+
+          <ClockHistoryTable
+            isAdminControlled={true}
+            tableClockList={tableClockList}
+            isFetching={isFetching}
+            onClick={(clock) => {
+              setSelectedClock(clock);
+              setEnableReviewClock(true);
+            }}
+          />
+        </section>
+      </ManagerLayout>
+    </>
   ) : (
     <LoadingSpinner isFullScreen={true} />
   );

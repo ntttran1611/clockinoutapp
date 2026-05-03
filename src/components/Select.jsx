@@ -1,4 +1,4 @@
-export default function Select({ selectLabel, onChange, list }) {
+export function Select({ selectLabel, onChange, list }) {
   const options = list.map((item) => {
     const labels = {
       "Staff Member": `${item.firstName} ${item.lastName}`,
@@ -11,7 +11,7 @@ export default function Select({ selectLabel, onChange, list }) {
 
   return list && list.length > 0 ? (
     <section className="flex flex-col gap-2 text-text-primary">
-      <label htmlFor={selectLabel} name={selectLabel} className="text-base">
+      <label htmlFor={selectLabel} name={selectLabel} className="text-sm">
         {selectLabel}
       </label>
       <select

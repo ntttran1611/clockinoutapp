@@ -4,9 +4,14 @@ import {
   getClockoutMethodColor,
 } from "../../lib/dashboardUtils";
 import { TABLE_HEADERS } from "../../lib/dashboardConstants";
-import LoadingSpinner from "../LoadingSpinner";
+import { LoadingSpinner } from "../../components";
 
-export function ClockHistoryTable({ tableClockList, isFetching }) {
+export function ClockHistoryTable({
+  tableClockList,
+  isFetching,
+  isAdminControlled,
+  onClick,
+}) {
   return (
     <div className="max-h-[300px] overflow-y-auto overflow-x-auto no-scrollbar transition-all duration-500 ease-in-out w-full">
       <table className="table font-vietnam text-xs text-text-primary table-pin-rows my-5">
@@ -31,12 +36,20 @@ export function ClockHistoryTable({ tableClockList, isFetching }) {
               const row = formatClockTableRow(clock, getHourDiff);
               return (
                 <tr
+                  onClick={() => {
+                    if (
+                      !isAdminControlled ||
+                      clock.clockoutMethod != "auto-generated"
+                    )
+                      return;
+                    onClick(clock);
+                  }}
                   key={clock.id}
                   className={
                     !clock.endTime
                       ? "bg-sky-mist-20"
                       : clock.clockoutMethod == "auto-generated"
-                        ? "bg-alert-10 cursor-pointer"
+                        ? `bg-alert-10 ${isAdminControlled ? "cursor-pointer" : ""}`
                         : ""
                   }
                 >
