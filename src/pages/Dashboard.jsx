@@ -6,6 +6,7 @@ import {
   TimeHolder,
   AlertModal,
   DateTimeInput,
+  LoadingSpinner,
 } from "../components";
 import {
   ClockWarningBanner,
@@ -33,7 +34,6 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Header from "../components/dashboard/Header";
-import LoadingSpinner from "../components/LoadingSpinner";
 import { getNoteOfLatestClockIn } from "../lib/dashboardUtils";
 
 dayjs.extend(utc);

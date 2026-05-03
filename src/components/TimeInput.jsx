@@ -1,4 +1,4 @@
-export default function TimeInput({ label, id, defaultValue, onChange }) {
+export function TimeInput({ label, id, defaultValue, onChange }) {
   return (
     <input
       id={id}

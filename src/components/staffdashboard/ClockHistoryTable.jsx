@@ -4,7 +4,7 @@ import {
   getClockoutMethodColor,
 } from "../../lib/dashboardUtils";
 import { TABLE_HEADERS } from "../../lib/dashboardConstants";
-import LoadingSpinner from "../LoadingSpinner";
+import { LoadingSpinner } from "../../components";
 
 export function ClockHistoryTable({
   tableClockList,

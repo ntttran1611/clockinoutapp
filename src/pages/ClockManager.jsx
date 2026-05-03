@@ -1,34 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-import ManagerLayout from "../components/admindashboard/ManagerLayout";
-import ToolBarContainer from "../components/admindashboard/toptoolbar/ToolBarContainer";
-import DateTimeInput from "../components/DateTimeInput";
-import Select from "../components/Select";
 import {
   AlertModal,
   Button,
   ClockReviewModal,
   ErrorModal,
   FormModal,
+  TimeInput,
+  WageSummaryDisplay,
+  DateTimeInput,
+  ManagerLayout,
+  ToolBarContainer,
+  LoadingSpinner,
 } from "../components";
 import { ClockHistoryTable } from "../components/staffdashboard";
 import { useUser } from "../context/UserContext";
 import { getStaffList } from "../data/Staff";
-import { useStaffData, useTableClockData } from "../hooks";
-import { useUpdateClockMutation } from "../hooks/useClockActions";
+import {
+  useStaffData,
+  useTableClockData,
+  useUpdateClockMutation,
+} from "../hooks";
 import {
   startOfWeek,
   endOfWeek,
-  convertToDateObject,
   formatDate,
   formatTime,
-} from "../lib/date";
-import { exportClockTableToExcel } from "../lib/exportToExcel";
-import LoadingSpinner from "../components/LoadingSpinner";
-import TimeInput from "../components/TimeInput";
-import { formatDecimal, getHourDiff } from "../lib";
-import { WageSummaryDisplay } from "../components";
+  formatDecimal,
+  getHourDiff,
+  exportClockTableToExcel,
+} from "../lib";
+import { Select } from "../components/Select.jsx";
 
 dayjs.extend(isoWeek);
 
@@ -41,8 +44,6 @@ export default function ClockManager() {
 
   const [selectedStaffId, setSelectedStaffId] = useState("");
   const [selectedClock, setSelectedClock] = useState({});
-  const [enableFunctions, setEnableFunctions] = useState(false);
-  const [showWageSummary, setShowWageSummary] = useState(false);
   const [enableReviewClock, setEnableReviewClock] = useState(false);
 
   // data queries
@@ -50,12 +51,29 @@ export default function ClockManager() {
     useTableClockData(selectedStaffId, dateRange.start, dateRange.end);
   const { staffList, staffListIsFetching } = useStaffData();
 
-  useEffect(() => {
-    if (tableClockList && tableClockList.length > 0) {
-      setEnableFunctions(true);
-    } else {
-      setEnableFunctions(false);
-    }
+  //clock mutation
+  const updateClockMutation = useUpdateClockMutation();
+
+  //Derived state
+  const hasData = tableClockList.length > 0;
+  const canCalculate = hasData && !isFetching;
+  const selectedStaff = useMemo(
+    () => staffList?.find((staff) => staff.id == selectedStaffId) || null,
+    [selectedStaffId, staffList],
+  );
+  const hasUnverifiedClocks = useMemo(() => {
+    return tableClockList?.some(
+      (clock) =>
+        clock.clockoutMethod === "auto-generated" ||
+        clock.clockoutMethod === null,
+    );
+  }, [tableClockList]);
+  const totalWorkingHours = useMemo(() => {
+    const initialValue = 0;
+    return tableClockList?.reduce(
+      (total, clock) => total + getHourDiff(clock.startTime, clock.endTime),
+      initialValue,
+    );
   }, [tableClockList]);
 
   useEffect(() => {
@@ -64,83 +82,46 @@ export default function ClockManager() {
     clockReviewModal.showModal();
   }, [enableReviewClock]);
 
-  const handleCalculateWage = () => {
-    const unVerifiedClocks = tableClockList.filter((clock) => {
-      return (
-        clock.clockoutMethod === "auto-generated" ||
-        clock.clockoutMethod === null
-      );
-    });
-
-    if (unVerifiedClocks.length > 0) {
-      document.querySelector("#CALCULATE_WAGE_ERROR").showModal();
-    } else {
-      setShowWageSummary(true);
-    }
-  };
+  useEffect(() => {
+    setSelectedStaffId(staffList?.[0]?.id || "");
+  }, [staffList]);
 
   const handleDateChange = (e) => {
     const { id, value } = e.target;
-    if (id === "startDate") {
-      setDateRange({ ...dateRange, start: value });
-    } else if (id === "endDate") {
-      setDateRange({ ...dateRange, end: value });
-    }
-  };
-
-  const handleStaffChange = (e) => {
-    setSelectedStaffId(e.target.value);
-  };
-
-  const handleViewClick = () => {
-    if (!selectedStaffId || !startDate || !endDate) return;
-    // Trigger the refetch
-    refetchTableClockList();
+    id === "startDate"
+      ? setDateRange({ ...dateRange, start: value })
+      : setDateRange({ ...dateRange, end: value });
   };
 
   const handleExportClick = () => {
-    const unVerifiedClocks = tableClockList.filter((clock) => {
-      return (
-        clock.clockoutMethod === "auto-generated" ||
-        clock.clockoutMethod === null
-      );
-    });
-
-    if (unVerifiedClocks.length > 0) {
+    if (hasUnverifiedClocks) {
       document.querySelector("#alertModal").showModal();
     } else {
       exportExcel();
     }
   };
 
-  function getStaff() {
-    return staffList.find((staff) => staff.id == selectedStaffId);
-  }
-
   const exportExcel = () => {
-    const selectedStaff = getStaff();
     const staffName = selectedStaff
       ? `${selectedStaff.firstName}_${selectedStaff.lastName}`
       : "Unknown";
 
-    exportClockTableToExcel(tableClockList, staffName, startDate, endDate);
+    exportClockTableToExcel(
+      tableClockList,
+      staffName,
+      dateRange.start,
+      dateRange.end,
+    );
   };
 
-  const handleUnclosedShiftRowClicked = (clock) => {
-    setSelectedClock(clock);
-    setEnableReviewClock(true);
-  };
-
-  function totalWorkingHours() {
-    let totalWorkingHours = 0;
-    if (tableClockList) {
-      tableClockList.map(
-        (clock) =>
-          (totalWorkingHours += getHourDiff(clock.startTime, clock.endTime)),
-      );
+  const handleConfirmUpdate = async (updatedClock) => {
+    try {
+      await updateClockMutation.mutateAsync(updatedClock);
+    } catch (error) {
+      console.error("Error updating clock:", error);
     }
-    return totalWorkingHours;
-  }
+    setEnableReviewClock(false);
+  };
 
   return !staffListIsFetching ? (
     <>
@@ -152,11 +133,6 @@ export default function ClockManager() {
         content="There are shifts that have not been closed or verified. Would you to like to continue?"
       />
       <ErrorModal
-        id="errorModal"
-        heading={"Empty list"}
-        content={"No data to export. Please fetch data first."}
-      />
-      <ErrorModal
         id="CALCULATE_WAGE_ERROR"
         heading={"Unverified shifts"}
         content={
@@ -166,10 +142,12 @@ export default function ClockManager() {
 
       {enableReviewClock && (
         <ClockReviewModal
-          staff={getStaff()}
+          staff={selectedStaff}
           clock={selectedClock}
-          setClock={setSelectedClock}
-          setEnableReviewClock={setEnableReviewClock}
+          onClose={() => {
+            setEnableReviewClock(false);
+          }}
+          onConfirm={handleConfirmUpdate}
         />
       )}
 
@@ -190,44 +168,48 @@ export default function ClockManager() {
           <Select
             list={staffList}
             selectLabel="Staff Member"
-            onChange={handleStaffChange}
+            onChange={(e) => setSelectedStaffId(e.target.value)}
           />
           <button
-            onClick={handleViewClick}
-            className="btn font-regular bg-sky-mist-100 text-white"
+            disabled={!canCalculate}
+            onClick={handleExportClick}
+            className="btn font-regular bg-mocha text-white"
           >
-            View
+            Export Excel
           </button>
-          {enableFunctions && (
-            <>
-              <button
-                className="btn font-regular bg-sky-mist-50 text-white"
-                onClick={handleCalculateWage}
-              >
-                Calculate Wage
-              </button>
-              <button
-                onClick={handleExportClick}
-                className="btn font-regular bg-mocha text-white"
-              >
-                Export Excel
-              </button>
-            </>
-          )}
         </ToolBarContainer>
-        {showWageSummary && (
+        {canCalculate && (
           <WageSummaryDisplay
-            dateRange={dateRange}
-            totalWorkingHours={totalWorkingHours()}
-            selectedStaff={getStaff()}
+            wageSnapshot={{
+              startDate: dateRange.start,
+              endDate: dateRange.end,
+              totalWorkingHours: totalWorkingHours,
+            }}
+            selectedStaff={selectedStaff}
+            hasUnverifiedClocks={hasUnverifiedClocks}
           />
         )}
         <section className="grow shadow-xl rounded-xl p-7 border border-mocha-30">
+          <div className="flex justify-between">
+            <p className="ml-4 text-xs text-mocha-50">
+              Date range: {formatDate(dateRange.start)} -
+              {formatDate(dateRange.end)}
+            </p>
+            <p className="ml-4 text-xs text-mocha-50">
+              Staff:{" "}
+              {selectedStaff &&
+                `${selectedStaff.firstName} ${selectedStaff.lastName}`}
+            </p>
+          </div>
+
           <ClockHistoryTable
             isAdminControlled={true}
             tableClockList={tableClockList}
             isFetching={isFetching}
-            onClick={handleUnclosedShiftRowClicked}
+            onClick={(clock) => {
+              setSelectedClock(clock);
+              setEnableReviewClock(true);
+            }}
           />
         </section>
       </ManagerLayout>

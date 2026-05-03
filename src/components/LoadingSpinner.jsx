@@ -1,4 +1,4 @@
-export default function LoadingSpinner({ isFullScreen }) {
+export function LoadingSpinner({ isFullScreen }) {
   return (
     <div
       className={`${isFullScreen ? "h-screen" : ""} flex items-center justify-center`}

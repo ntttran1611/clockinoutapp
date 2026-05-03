@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export function useTableClockData(staffId, searchStartDate, searchEndDate) {
   const tableClockQuery = useQuery({
-    queryKey: ["tableClockList", staffId],
+    queryKey: ["tableClockList", staffId, searchStartDate, searchEndDate],
     queryFn: () =>
       getClockListWithinRange(
         staffId,

@@ -1,4 +1,4 @@
-export default function FormErrorMessage({ message }) {
+export function FormErrorMessage({ message }) {
   if (message.length == 0) {
     return;
   }
