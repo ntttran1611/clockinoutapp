@@ -47,3 +47,13 @@ export const TABLE_HEADERS = [
   "Clock-out Method",
   "Note",
 ];
+
+// Staff Table Headers
+export const STAFF_TABLE_HEADERS = [
+  "Status",
+  "Login ID",
+  "Name",
+  "Pay Rate",
+  "Availability",
+  "Functions",
+];

@@ -26,6 +26,14 @@ export * from "./FormErrorMessage.jsx";
 //export * from "./Select.jsx";
 export * from "./LoadingSpinner.jsx";
 export * from "./Dropdown.jsx";
+export * from "./SearchInput.jsx";
+export * from "./NewVersionButton.jsx";
+export * from "./Table.jsx";
+export * from "./TableContainer.jsx";
+export * from "./FormInput.jsx";
+export * from "./Toggle.jsx";
+export * from "./Checkbox.jsx";
 
 export * from "./clock-manager";
+export * from "./staff-manager";
 export * from "./admindashboard";

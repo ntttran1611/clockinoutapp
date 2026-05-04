@@ -5,7 +5,7 @@ export function Select({ selectLabel, onChange, list }) {
     };
     return {
       id: item.id,
-      name: labels[selectLabel] || "Unknown",
+      name: labels[selectLabel] ? labels[selectLabel] : item.name,
     };
   });
 

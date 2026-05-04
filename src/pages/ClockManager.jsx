@@ -12,7 +12,9 @@ import {
   DateTimeInput,
   ManagerLayout,
   ToolBarContainer,
+  NewVersionButton,
   LoadingSpinner,
+  TableContainer,
 } from "../components";
 import { ClockHistoryTable } from "../components/staffdashboard";
 import { useUser } from "../context/UserContext";
@@ -151,32 +153,34 @@ export default function ClockManager() {
         />
       )}
 
-      <ManagerLayout tabTitle="Clocks">
+      <ManagerLayout tabTitle="Clock Manager">
         <ToolBarContainer>
-          <DateTimeInput
-            label="From"
-            id="startDate"
-            defaultValue={dateRange.start}
-            onChange={handleDateChange}
-          />
-          <DateTimeInput
-            label="To"
-            id="endDate"
-            defaultValue={dateRange.end}
-            onChange={handleDateChange}
-          />
-          <Select
-            list={staffList}
-            selectLabel="Staff Member"
-            onChange={(e) => setSelectedStaffId(e.target.value)}
-          />
-          <button
+          <div className="flex gap-4 flex-1">
+            <DateTimeInput
+              label="From"
+              id="startDate"
+              defaultValue={dateRange.start}
+              onChange={handleDateChange}
+            />
+            <DateTimeInput
+              label="To"
+              id="endDate"
+              defaultValue={dateRange.end}
+              onChange={handleDateChange}
+            />
+            <Select
+              list={staffList}
+              selectLabel="Staff Member"
+              onChange={(e) => setSelectedStaffId(e.target.value)}
+            />
+          </div>
+          <NewVersionButton
             disabled={!canCalculate}
             onClick={handleExportClick}
-            className="btn font-regular bg-mocha text-white"
+            intent="secondary"
           >
             Export Excel
-          </button>
+          </NewVersionButton>
         </ToolBarContainer>
         {canCalculate && (
           <WageSummaryDisplay
@@ -189,7 +193,7 @@ export default function ClockManager() {
             hasUnverifiedClocks={hasUnverifiedClocks}
           />
         )}
-        <section className="grow shadow-xl rounded-xl p-7 border border-mocha-30">
+        <TableContainer>
           <div className="flex justify-between">
             <p className="ml-4 text-xs text-mocha-50">
               Date range: {formatDate(dateRange.start)} -
@@ -211,7 +215,7 @@ export default function ClockManager() {
               setEnableReviewClock(true);
             }}
           />
-        </section>
+        </TableContainer>
       </ManagerLayout>
     </>
   ) : (

@@ -23,6 +23,12 @@ export function getClockoutMethodColor(clockoutMethod) {
   );
 }
 
+export function getNoteOfLatestClockIn(clockList, currentClockId) {
+  if ((!clockList && clockList.length === 0) || !currentClockId) return "";
+  const latestClockIn = clockList.find((clock) => clock.id === currentClockId);
+  return latestClockIn ? latestClockIn.note : "";
+}
+
 export function formatClockTableRow(clock, getHourDiff) {
   return {
     clockInDate: dayjs(clock.startTime).format("DD/MM/YYYY"),
@@ -39,8 +45,14 @@ export function formatClockTableRow(clock, getHourDiff) {
   };
 }
 
-export function getNoteOfLatestClockIn(clockList, currentClockId) {
-  if ((!clockList && clockList.length === 0) || !currentClockId) return "";
-  const latestClockIn = clockList.find((clock) => clock.id === currentClockId);
-  return latestClockIn ? latestClockIn.note : "";
+export function formatStaffTableRow(staff) {
+  return {
+    status: staff.isActive,
+    loginId: staff.id,
+    name: `${staff.firstName} ${staff.lastName}`,
+    payRate: staff.payRateCents
+      ? `$${formatDecimal(staff.payRateCents / 100)}/hr`
+      : "Not set",
+    availability: staff.availability || "Not set",
+  };
 }

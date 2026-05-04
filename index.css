@@ -16,14 +16,18 @@
   --color-mocha: rgb(66, 43, 35, 0.8);
   --color-mocha-30: rgb(66, 43, 35, 0.1);
   --color-mocha-50: rgb(66, 43, 35, 0.5);
+  --color-mocha-80: rgb(66, 43, 35, 0.8);
   --color-light-pink: #dd88b4;
   --color-text-primary: #5b5252;
   --color-sky-mist-20: rgb(117, 136, 156, 0.2);
   --color-sky-mist-50: rgb(117, 136, 156, 0.5);
+  --color-sky-mist-80: rgb(117, 136, 156, 0.8);
   --color-sky-mist-100: rgb(117, 136, 156);
   --color-text-secondary: #605959;
   --color-alert: #6d120b;
   --color-alert-10: rgb(109, 18, 11, 0.1);
+  --color-alert-50: rgb(109, 18, 11, 0.5);
+  --color-alert-80: rgb(109, 18, 11, 0.8);
   --color-almond: #baa49f;
   --color-almond-40: rgb(186, 164, 159, 0.4);
   --font-vietnam: "Be Vietnam Pro", sans-serif;
