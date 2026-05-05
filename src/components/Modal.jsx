@@ -1,4 +1,5 @@
 import { IoAlertCircle } from "react-icons/io5";
+import { NewVersionButton } from "./NewVersionButton";
 
 export function AlertModal({
   id,
@@ -67,7 +68,11 @@ export function ErrorModal({ id, heading, content }) {
 
 export function FormModal({ id, heading, action, children, color, onClose }) {
   return (
-    <dialog id={id} className="modal modal-bottom sm:modal-middle" onClose={onClose}>
+    <dialog
+      id={id}
+      className="modal modal-bottom sm:modal-middle"
+      onClose={onClose}
+    >
       <div className="modal-box font-vietnam ">
         <h3
           className={`font-bold text-lg text-${color}  flex items-center gap-1`}

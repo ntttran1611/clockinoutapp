@@ -7,6 +7,8 @@ export function Toggle({ label, isChecked, onToggle }) {
       <input
         id="toggle"
         type="checkbox"
+        onChange={onToggle}
+        checked={isChecked}
         className="toggle border-almond bg-almond-40 checked:border-sky-mist-100 checked:bg-sky-mist-50 checked:text-sky-mist-80"
       />
     </div>

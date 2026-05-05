@@ -5,12 +5,15 @@ import {
   Toggle,
   Checkbox,
 } from "../../components";
+import { useState } from "react";
 
-export function StaffFormModal({ onClose, onSubmit, initialData }) {
+export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
   return (
     <FormModal
       id="staff-form-modal"
-      heading={initialData ? "Edit Staff" : "Add New Staff"}
+      heading={
+        formData.loginId ? `Edit Staff #${formData.loginId}` : "Add New Staff"
+      }
       action={onSubmit}
       color="sky-mist-100"
       onClose={onClose}
@@ -20,64 +23,72 @@ export function StaffFormModal({ onClose, onSubmit, initialData }) {
           <FormInput
             label="First Name"
             name="firstName"
-            value={initialData?.firstName || ""}
-            onChange={() => {}}
+            value={formData.firstName}
+            onChange={(e) =>
+              setFormData({ ...formData, firstName: e.target.value })
+            }
           />
           <FormInput
             label="Last Name"
             name="lastName"
-            value={initialData?.lastName || ""}
-            onChange={() => {}}
+            value={formData.lastName}
+            onChange={(e) =>
+              setFormData({ ...formData, lastName: e.target.value })
+            }
           />
         </div>
         <div className="flex gap-4">
           <FormInput
             label="Pay Rate"
             name="payRate"
-            value={initialData?.payRate || ""}
-            onChange={() => {}}
+            value={formData.payRate}
+            onChange={(e) =>
+              setFormData({ ...formData, payRate: e.target.value })
+            }
           />
           <Toggle
             label="Active:"
-            isChecked={initialData?.isActive || false}
-            onToggle={() => {}}
+            isChecked={formData.isActive}
+            onToggle={() =>
+              setFormData({ ...formData, isActive: !formData.isActive })
+            }
           />
         </div>
         <label className="label text-sm px-3 py-1">Availability</label>
         <div className="grid grid-cols-3 gap-4 px-3">
           <Checkbox
             label="Monday"
-            isChecked={initialData?.availability?.monday || false}
+            isChecked={formData.availability?.monday || false}
             onChange={() => {}}
           />
           <Checkbox
             label="Tuesday"
-            isChecked={initialData?.availability?.tuesday || false}
+            isChecked={formData.availability?.tuesday || false}
             onChange={() => {}}
           />
           <Checkbox
             label="Wednesday"
-            isChecked={initialData?.availability?.wednesday || false}
+            isChecked={formData.availability?.wednesday || false}
             onChange={() => {}}
           />
           <Checkbox
             label="Thursday"
-            isChecked={initialData?.availability?.thursday || false}
+            isChecked={formData.availability?.thursday || false}
             onChange={() => {}}
           />
           <Checkbox
             label="Friday"
-            isChecked={initialData?.availability?.friday || false}
+            isChecked={formData.availability?.friday || false}
             onChange={() => {}}
           />
           <Checkbox
             label="Saturday"
-            isChecked={initialData?.availability?.saturday || false}
+            isChecked={formData.availability?.saturday || false}
             onChange={() => {}}
           />
           <Checkbox
             label="Sunday"
-            isChecked={initialData?.availability?.sunday || false}
+            isChecked={formData.availability?.sunday || false}
             onChange={() => {}}
           />
         </div>

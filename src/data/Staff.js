@@ -1,8 +1,25 @@
 import { supabase } from "../api";
 
-export async function getStaffList() {
+export async function getStaffList(staffStatusFilter, searchKeyword) {
   try {
-    const { data, error } = await supabase.from("staff").select();
+    let query = supabase.from("staff").select();
+
+    if (staffStatusFilter && staffStatusFilter !== "all") {
+      if (staffStatusFilter === "active") {
+        query = query.eq("isActive", true);
+      } else if (staffStatusFilter === "inactive") {
+        query = query.eq("isActive", false);
+      }
+    }
+
+    if (searchKeyword && searchKeyword.trim() !== "") {
+      query = query.or(
+        `firstName.ilike.%${searchKeyword}%,lastName.ilike.%${searchKeyword}%`,
+      );
+    }
+
+    const { data, error } = await query;
+
     if (error) {
       console.error("Error fetching data: ", error);
       return null;

@@ -5,7 +5,7 @@ export function Checkbox({ label, name, isChecked, onChange }) {
         type="checkbox"
         checked={isChecked}
         onChange={onChange}
-        className="checkbox checkbox-xs border-almond bg-almond-40 checked:border-orange-500 checked:bg-orange-400 checked:text-orange-800"
+        className="checkbox checkbox-sm border-almond bg-almond-40 checked:border-sky-mist-100 checked:bg-sky-mist-80 checked:text-white"
       />
       <label className="label text-sm">{label}</label>
     </div>

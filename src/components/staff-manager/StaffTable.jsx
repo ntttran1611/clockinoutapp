@@ -53,7 +53,7 @@ export function StaffTable({
                 className="text-mocha hover:text-mocha-80"
                 size="xs"
                 intent="text"
-                onClick={() => onEditStaff(staff.id)}
+                onClick={() => onEditStaff(staff)}
               >
                 Edit
               </NewVersionButton>{" "}

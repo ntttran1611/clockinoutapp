@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getStaffList } from "../data";
 
-export function useStaffData() {
+export function useStaffData(staffStatusFilter, searchKeyword) {
   const staffQuery = useQuery({
     queryKey: ["staffList"],
-    queryFn: () => getStaffList(),
+    queryFn: () => getStaffList(staffStatusFilter, searchKeyword),
   });
 
   return {
