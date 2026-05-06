@@ -53,6 +53,18 @@ export function formatStaffTableRow(staff) {
     payRate: staff.payRateCents
       ? `$${formatDecimal(staff.payRateCents / 100)}/hr`
       : "Not set",
-    availability: staff.availability || "Not set",
+    availability: getAvailabilityDaysText(staff.availability) || "Not set",
   };
+}
+
+function getAvailabilityDaysText(availability) {
+  if (!availability) return "Not set";
+  ///console.log("availability: ", availability);
+  const availableDays = [];
+  Object.entries(availability).forEach(([day, isAvailable]) => {
+    if (isAvailable) {
+      availableDays.push(day.charAt(0).toUpperCase() + day.slice(1, 3));
+    }
+  });
+  return availableDays.join(", ");
 }

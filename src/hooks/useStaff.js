@@ -1,6 +1,25 @@
 import { useNavigate } from "react-router-dom";
-import { getStaff, updateStaffClockInStatus, updateStaff } from "../data";
+import {
+  getStaff,
+  updateStaffClockInStatus,
+  updateStaff,
+  addStaff,
+} from "../data";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function useAddStaffMutation() {
+  const queryClient = useQueryClient();
+  const addStaffMutation = useMutation({
+    mutationFn: (staffData) => addStaff(staffData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["staffList"] });
+    },
+    onError: (error) => {
+      console.error("Error adding staff: ", error);
+    },
+  });
+  return addStaffMutation;
+}
 
 export function useStaffUpdateClockStatusMutation() {
   const queryClient = useQueryClient();
@@ -28,6 +47,20 @@ export function useUpdateStaffMutation() {
     },
   });
   return updateStaffMutation;
+}
+
+export function useEditStaffMutation() {
+  const queryClient = useQueryClient();
+  const editStaffMutation = useMutation({
+    mutationFn: (staffData) => updateStaff(staffData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["staffList"] });
+    },
+    onError: (error) => {
+      console.error("Error editing staff: ", error);
+    },
+  });
+  return editStaffMutation;
 }
 
 export function useStaffInitialization() {

@@ -5,9 +5,10 @@ export function FormInput({
   value,
   onChange,
   placeholder,
+  onBlur,
 }) {
   return (
-    <label className="input">
+    <label className="input focus:outline-none border-mocha-30 focus:border-mocha-30">
       <span className="label">{label}</span>
       <input
         type={type}
@@ -15,6 +16,7 @@ export function FormInput({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        onBlur={onBlur}
       />
     </label>
   );

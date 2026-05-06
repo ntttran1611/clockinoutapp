@@ -10,8 +10,9 @@ import {
 import { Select } from "../components/Select";
 import { StaffFormModal } from "../components/staff-manager/StaffFormModal";
 import { useStaffData } from "../hooks";
+import { useAddStaffMutation, useEditStaffMutation } from "../hooks/useStaff";
 import { useState, useEffect } from "react";
-import { formatDecimal } from "../lib";
+import { formatDecimal, validateString } from "../lib";
 
 export default function StaffManager() {
   const initialFormData = {
@@ -38,6 +39,10 @@ export default function StaffManager() {
     staffStatusFilter,
     searchKeyword,
   );
+  //mutations
+  const addStaffMutation = useAddStaffMutation();
+  const editStaffMutation = useEditStaffMutation();
+
   const openFormModal = (staff) => {
     setFormData(
       !staff
@@ -48,18 +53,54 @@ export default function StaffManager() {
             lastName: staff.lastName,
             payRate: formatDecimal(staff.payRateCents / 100) || "",
             isActive: staff.isActive,
-            availability: {
-              monday: false,
-              tuesday: false,
-              wednesday: false,
-              thursday: false,
-              friday: false,
-              saturday: false,
-              sunday: false,
-            },
+            availability: staff.availability,
           },
     );
     document.querySelector("#staff-form-modal").showModal();
+  };
+
+  const closeFormModal = () => {
+    document.querySelector("#staff-form-modal").close();
+    setFormData(initialFormData);
+  };
+
+  const handleStaffSubmit = async () => {
+    // Validate first name
+    if (!validateString(formData.firstName)) {
+      alert("First Name is required and cannot be empty");
+      return;
+    }
+
+    // Validate last name
+    if (!validateString(formData.lastName)) {
+      alert("Last Name is required and cannot be empty");
+      return;
+    }
+
+    // Pay rate is already auto-corrected on input change
+    const payRateCents = Math.round(parseFloat(formData.payRate) * 100);
+
+    const staffData = {
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      payRateCents: payRateCents,
+      isActive: formData.isActive,
+      availability: formData.availability,
+    };
+
+    // Check if this is add or edit
+    if (formData.loginId) {
+      // Edit existing staff
+      await editStaffMutation.mutateAsync({
+        ...staffData,
+        id: formData.loginId,
+      });
+    } else {
+      // Add new staff
+      await addStaffMutation.mutateAsync(staffData);
+    }
+
+    closeFormModal();
   };
 
   const openDeleteModal = () => {
@@ -88,8 +129,8 @@ export default function StaffManager() {
     <>
       <StaffFormModal
         formData={formData}
-        onClose={() => {}}
-        onSubmit={() => {}}
+        onClose={closeFormModal}
+        onSubmit={handleStaffSubmit}
         setFormData={setFormData}
       />
       <AlertModal

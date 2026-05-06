@@ -5,6 +5,7 @@ import {
   Toggle,
   Checkbox,
 } from "../../components";
+import { formatPayRateDisplay, validateAndCorrectPayRate } from "../../lib";
 import { useState } from "react";
 
 export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
@@ -42,9 +43,18 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
             label="Pay Rate"
             name="payRate"
             value={formData.payRate}
-            onChange={(e) =>
-              setFormData({ ...formData, payRate: e.target.value })
-            }
+            onChange={(e) => {
+              setFormData({
+                ...formData,
+                payRate: e.target.value,
+              });
+            }}
+            onBlur={(e) => {
+              setFormData({
+                ...formData,
+                payRate: formatPayRateDisplay(e.target.value),
+              });
+            }}
           />
           <Toggle
             label="Active:"
@@ -58,38 +68,94 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
         <div className="grid grid-cols-3 gap-4 px-3">
           <Checkbox
             label="Monday"
-            isChecked={formData.availability?.monday || false}
-            onChange={() => {}}
+            isChecked={formData.availability.monday}
+            onChange={() => {
+              setFormData({
+                ...formData,
+                availability: {
+                  ...formData.availability,
+                  monday: !formData.availability.monday,
+                },
+              });
+            }}
           />
           <Checkbox
             label="Tuesday"
-            isChecked={formData.availability?.tuesday || false}
-            onChange={() => {}}
+            isChecked={formData.availability.tuesday}
+            onChange={() => {
+              setFormData({
+                ...formData,
+                availability: {
+                  ...formData.availability,
+                  tuesday: !formData.availability.tuesday,
+                },
+              });
+            }}
           />
           <Checkbox
             label="Wednesday"
-            isChecked={formData.availability?.wednesday || false}
-            onChange={() => {}}
+            isChecked={formData.availability.wednesday}
+            onChange={() => {
+              setFormData({
+                ...formData,
+                availability: {
+                  ...formData.availability,
+                  wednesday: !formData.availability.wednesday,
+                },
+              });
+            }}
           />
           <Checkbox
             label="Thursday"
-            isChecked={formData.availability?.thursday || false}
-            onChange={() => {}}
+            isChecked={formData.availability.thursday}
+            onChange={() => {
+              setFormData({
+                ...formData,
+                availability: {
+                  ...formData.availability,
+                  thursday: !formData.availability.thursday,
+                },
+              });
+            }}
           />
           <Checkbox
             label="Friday"
-            isChecked={formData.availability?.friday || false}
-            onChange={() => {}}
+            isChecked={formData.availability.friday}
+            onChange={() => {
+              setFormData({
+                ...formData,
+                availability: {
+                  ...formData.availability,
+                  friday: !formData.availability.friday,
+                },
+              });
+            }}
           />
           <Checkbox
             label="Saturday"
-            isChecked={formData.availability?.saturday || false}
-            onChange={() => {}}
+            isChecked={formData.availability.saturday}
+            onChange={() => {
+              setFormData({
+                ...formData,
+                availability: {
+                  ...formData.availability,
+                  saturday: !formData.availability.saturday,
+                },
+              });
+            }}
           />
           <Checkbox
             label="Sunday"
-            isChecked={formData.availability?.sunday || false}
-            onChange={() => {}}
+            isChecked={formData.availability.sunday}
+            onChange={() => {
+              setFormData({
+                ...formData,
+                availability: {
+                  ...formData.availability,
+                  sunday: !formData.availability.sunday,
+                },
+              });
+            }}
           />
         </div>
       </section>
