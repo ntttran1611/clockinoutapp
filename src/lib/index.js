@@ -4,3 +4,4 @@ export * from "./regex.js";
 export * from "./time.js";
 export * from "./exportToExcel.js";
 export * from "./validation.js";
+export * from "./formatString.js";

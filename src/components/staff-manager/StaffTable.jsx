@@ -62,7 +62,7 @@ export function StaffTable({
                 className="text-alert hover:text-alert-80"
                 size="xs"
                 intent="text"
-                onClick={() => onDeleteStaff(staff.id)}
+                onClick={() => onDeleteStaff(staff)}
               >
                 Delete
               </NewVersionButton>

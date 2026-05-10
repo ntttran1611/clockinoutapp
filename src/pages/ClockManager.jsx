@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import {
@@ -20,7 +21,7 @@ import { ClockHistoryTable } from "../components/staffdashboard";
 import { useUser } from "../context/UserContext";
 import { getStaffList } from "../data/Staff";
 import {
-  useStaffData,
+  useStaffList,
   useTableClockData,
   useUpdateClockMutation,
 } from "../hooks";
@@ -39,19 +40,22 @@ dayjs.extend(isoWeek);
 
 export default function ClockManager() {
   const { tempUser } = useUser();
+  const [searchParams] = useSearchParams();
+  const initialStaffId = searchParams.get("staffId");
+
   const [dateRange, setDateRange] = useState({
     start: startOfWeek(dayjs()).format("YYYY-MM-DD"),
     end: endOfWeek(dayjs()).format("YYYY-MM-DD"),
   });
 
-  const [selectedStaffId, setSelectedStaffId] = useState("");
+  const [selectedStaffId, setSelectedStaffId] = useState(initialStaffId || "");
   const [selectedClock, setSelectedClock] = useState({});
   const [enableReviewClock, setEnableReviewClock] = useState(false);
 
   // data queries
   const { tableClockList, isFetching, refetchTableClockList } =
     useTableClockData(selectedStaffId, dateRange.start, dateRange.end);
-  const { staffList, staffListIsFetching } = useStaffData();
+  const { staffList, staffListIsFetching } = useStaffList();
 
   //clock mutation
   const updateClockMutation = useUpdateClockMutation();
@@ -85,8 +89,11 @@ export default function ClockManager() {
   }, [enableReviewClock]);
 
   useEffect(() => {
-    setSelectedStaffId(staffList?.[0]?.id || "");
-  }, [staffList]);
+    // Only set to first staff if no initial staff ID was provided
+    if (!initialStaffId) {
+      setSelectedStaffId(staffList?.[0]?.id || "");
+    }
+  }, [staffList, initialStaffId]);
 
   const handleDateChange = (e) => {
     const { id, value } = e.target;
@@ -171,6 +178,7 @@ export default function ClockManager() {
             <Select
               list={staffList}
               selectLabel="Staff Member"
+              value={selectedStaffId}
               onChange={(e) => setSelectedStaffId(e.target.value)}
             />
           </div>

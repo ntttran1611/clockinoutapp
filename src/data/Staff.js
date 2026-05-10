@@ -59,7 +59,7 @@ export async function addStaff(staffData) {
       return null;
     }
 
-    console.log("Staff added successfully with ID: ", uniqueId);
+    //console.log("Staff added successfully with ID: ", uniqueId);
     return { ...staffData, id: uniqueId };
   } catch (err) {
     console.error("Unexpected error adding staff: ", err);
@@ -70,7 +70,10 @@ export async function addStaff(staffData) {
 
 export async function getStaffList(staffStatusFilter, searchKeyword) {
   try {
-    let query = supabase.from("staff").select();
+    let query = supabase
+      .from("staff")
+      .select()
+      .order("firstName", { ascending: true });
 
     if (staffStatusFilter && staffStatusFilter !== "all") {
       if (staffStatusFilter === "active") {
@@ -171,5 +174,68 @@ export async function updateStaffClockInStatus(
     }
   } catch (err) {
     console.error("Unexpected error: ", err);
+  }
+}
+
+export async function deleteStaff(staffId) {
+  try {
+    // 1. Check if staff has an active clock running
+    const staff = await getStaff(staffId);
+    if (!staff) {
+      return {
+        success: false,
+        errorType: "general",
+        message: "Staff not found",
+      };
+    }
+
+    if (staff.isClockIn === true) {
+      return {
+        success: false,
+        errorType: "clockRunning",
+        message: `Cannot delete staff: ${staff.firstName} ${staff.lastName} has an active clock running. Please clock out first.`,
+      };
+    }
+
+    // 2. Clear staff clock history
+    const { error: clockError } = await supabase
+      .from("clock")
+      .delete()
+      .eq("staffId", staffId);
+
+    if (clockError) {
+      return {
+        success: false,
+        errorType: "general",
+        message: "Could not clear staff history: " + clockError.message,
+      };
+    }
+
+    // 3. Now delete the staff member
+    const { error: staffError } = await supabase
+      .from("staff")
+      .delete()
+      .eq("id", staffId);
+
+    if (staffError) {
+      return {
+        success: false,
+        errorType: "general",
+        message: "Could not delete staff: " + staffError.message,
+      };
+    }
+
+    console.log("Staff deleted successfully");
+    return {
+      success: true,
+      errorType: null,
+      message: "Staff deleted successfully",
+    };
+  } catch (err) {
+    return {
+      success: false,
+      errorType: "general",
+      message: err.message,
+    };
   }
 }

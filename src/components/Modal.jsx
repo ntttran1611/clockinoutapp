@@ -1,5 +1,6 @@
 import { IoAlertCircle } from "react-icons/io5";
 import { NewVersionButton } from "./NewVersionButton";
+import { FaCheckCircle } from "react-icons/fa";
 
 export function AlertModal({
   id,
@@ -66,7 +67,32 @@ export function ErrorModal({ id, heading, content }) {
   );
 }
 
-export function FormModal({ id, heading, action, children, color, onClose }) {
+export function SuccessModal({ id, heading, content }) {
+  return (
+    <dialog id={id} className="modal">
+      <div className="modal-box font-vietnam">
+        <h3 className="font-bold text-sm text-sky-mist-100 flex items-center gap-1">
+          <FaCheckCircle className="h-6 w-6" />
+          {heading}
+        </h3>
+        <p className="py-4 text-text-primary">{content}</p>
+      </div>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+  );
+}
+
+export function FormModal({
+  id,
+  heading,
+  action,
+  children,
+  color,
+  onClose,
+  disableConfirmation,
+}) {
   return (
     <dialog
       id={id}
@@ -86,6 +112,7 @@ export function FormModal({ id, heading, action, children, color, onClose }) {
             <button
               className={`btn bg-${color} text-white font-light font-vietnam mr-2 tracking-wide`}
               onClick={action}
+              disabled={disableConfirmation}
             >
               Confirm
             </button>

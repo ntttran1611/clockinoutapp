@@ -4,8 +4,11 @@ import {
   updateStaffClockInStatus,
   updateStaff,
   addStaff,
+  deleteStaff,
 } from "../data";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+//staff list mudations
 
 export function useAddStaffMutation() {
   const queryClient = useQueryClient();
@@ -15,12 +18,41 @@ export function useAddStaffMutation() {
       queryClient.invalidateQueries({ queryKey: ["staffList"] });
     },
     onError: (error) => {
-      console.error("Error adding staff: ", error);
+      console.error("Mutation - Error adding staff: ", error);
     },
   });
   return addStaffMutation;
 }
 
+export function useEditStaffMutation() {
+  const queryClient = useQueryClient();
+  const editStaffMutation = useMutation({
+    mutationFn: (staffData) => updateStaff(staffData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["staffList"] });
+    },
+    onError: (error) => {
+      console.error("Error editing staff: ", error);
+    },
+  });
+  return editStaffMutation;
+}
+
+export function useDeleteStaffMutation() {
+  const queryClient = useQueryClient();
+  const deleteStaffMutation = useMutation({
+    mutationFn: (staffId) => deleteStaff(staffId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["staffList"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting staff: ", error);
+    },
+  });
+  return deleteStaffMutation;
+}
+
+//Single Staff mutations
 export function useStaffUpdateClockStatusMutation() {
   const queryClient = useQueryClient();
   const staffClockInStatusMutation = useMutation({
@@ -47,44 +79,4 @@ export function useUpdateStaffMutation() {
     },
   });
   return updateStaffMutation;
-}
-
-export function useEditStaffMutation() {
-  const queryClient = useQueryClient();
-  const editStaffMutation = useMutation({
-    mutationFn: (staffData) => updateStaff(staffData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["staffList"] });
-    },
-    onError: (error) => {
-      console.error("Error editing staff: ", error);
-    },
-  });
-  return editStaffMutation;
-}
-
-export function useStaffInitialization() {
-  const navigate = useNavigate();
-  if (!localStorage.getItem("staff")) {
-    navigate("/");
-  }
-
-  const query = useQuery({
-    queryKey: ["staff"],
-    queryFn: () => getStaff(localStorage.getItem("staff")),
-    enabled: !!localStorage.getItem("staff"),
-  });
-
-  if (query.isError) {
-    console.error("Error fetching staff data: ", query.error);
-    localStorage.removeItem("staff");
-    navigate("/"); //This can be replaced with a more user-friendly error handling in the future
-    return;
-  }
-
-  return {
-    tempStaff: query.data,
-    refetchStaff: query.refetch,
-    isStaffLoading: query.isLoading,
-  };
 }

@@ -6,15 +6,23 @@ import {
   TableContainer,
   StaffTable,
   AlertModal,
+  ErrorModal,
+  SuccessModal,
 } from "../components";
 import { Select } from "../components/Select";
 import { StaffFormModal } from "../components/staff-manager/StaffFormModal";
-import { useStaffData } from "../hooks";
-import { useAddStaffMutation, useEditStaffMutation } from "../hooks/useStaff";
+import {
+  useStaffList,
+  useAddStaffMutation,
+  useEditStaffMutation,
+  useDeleteStaffMutation,
+} from "../hooks";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { formatDecimal, validateString } from "../lib";
 
 export default function StaffManager() {
+  const navigate = useNavigate();
   const initialFormData = {
     loginId: null,
     firstName: "",
@@ -34,14 +42,18 @@ export default function StaffManager() {
   const [staffStatusFilter, setStaffStatusFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [formData, setFormData] = useState(initialFormData);
+  const [modalContent, setModalContent] = useState("");
+
   //staff data query
-  const { staffList, staffListIsFetching, refetchStaffList } = useStaffData(
+  const { staffList, staffListIsFetching, refetchStaffList } = useStaffList(
     staffStatusFilter,
     searchKeyword,
   );
+
   //mutations
   const addStaffMutation = useAddStaffMutation();
   const editStaffMutation = useEditStaffMutation();
+  const deleteStaffMutation = useDeleteStaffMutation();
 
   const openFormModal = (staff) => {
     setFormData(
@@ -59,26 +71,14 @@ export default function StaffManager() {
     document.querySelector("#staff-form-modal").showModal();
   };
 
-  const closeFormModal = () => {
-    document.querySelector("#staff-form-modal").close();
-    setFormData(initialFormData);
-  };
-
   const handleStaffSubmit = async () => {
-    // Validate first name
-    if (!validateString(formData.firstName)) {
-      alert("First Name is required and cannot be empty");
-      return;
+    let payRateCents = 0;
+    if (!(formData.payRate === "" || isNaN(formData.payRate))) {
+      // Pay rate is already auto-corrected on input change
+      payRateCents = parseInt(Math.round(parseFloat(formData.payRate) * 100));
+    } else {
+      payRateCents = 0; // Default to 0 if empty or invalid
     }
-
-    // Validate last name
-    if (!validateString(formData.lastName)) {
-      alert("Last Name is required and cannot be empty");
-      return;
-    }
-
-    // Pay rate is already auto-corrected on input change
-    const payRateCents = Math.round(parseFloat(formData.payRate) * 100);
 
     const staffData = {
       firstName: formData.firstName.trim(),
@@ -88,24 +88,64 @@ export default function StaffManager() {
       availability: formData.availability,
     };
 
-    // Check if this is add or edit
-    if (formData.loginId) {
-      // Edit existing staff
-      await editStaffMutation.mutateAsync({
-        ...staffData,
-        id: formData.loginId,
-      });
-    } else {
-      // Add new staff
-      await addStaffMutation.mutateAsync(staffData);
+    try {
+      // Check if this is add or edit
+      if (formData.loginId) {
+        // Edit existing staff
+        await editStaffMutation.mutateAsync({
+          ...staffData,
+          id: formData.loginId,
+        });
+      } else {
+        // Add new staff
+        await addStaffMutation.mutateAsync(staffData);
+      }
+      setModalContent(
+        formData.loginId
+          ? "Staff details updated successfully."
+          : "New staff added successfully.",
+      );
+      document.querySelector("#SUCCESS_MODAL").showModal();
+    } catch (err) {
+      setModalContent("An unexpected error occurred. Please try again.");
+      document.querySelector("#ERROR_MODAL").showModal();
     }
 
-    closeFormModal();
+    setFormData(initialFormData);
   };
 
-  const openDeleteModal = () => {
+  const openDeleteModal = (staff) => {
+    if (!staff) return;
+    setFormData({
+      ...initialFormData,
+      loginId: staff.id,
+      firstName: staff.firstName,
+      lastName: staff.lastName,
+    });
     document.querySelector("#delete-staff-modal").showModal();
   };
+
+  const handleDeleteStaff = async (staffId) => {
+    try {
+      const result = await deleteStaffMutation.mutateAsync(staffId);
+
+      if (result.success) {
+        setModalContent(result.message);
+        document.querySelector("#SUCCESS_MODAL").showModal();
+      } else {
+        setModalContent(result.message);
+        document.querySelector("#ERROR_MODAL").showModal();
+      }
+    } catch (err) {
+      setModalContent("An unexpected error occurred. Please try again.");
+      document.querySelector("#ERROR_MODAL").showModal();
+    }
+  };
+
+  const handleViewClockHistory = (staffId) => {
+    navigate(`/admin/clocks?staffId=${staffId}`);
+  };
+
   const onStatusFilterChange = (e) => {
     switch (e.target.value) {
       case "1":
@@ -129,16 +169,34 @@ export default function StaffManager() {
     <>
       <StaffFormModal
         formData={formData}
-        onClose={closeFormModal}
+        onClose={() => setFormData(initialFormData)}
         onSubmit={handleStaffSubmit}
         setFormData={setFormData}
       />
       <AlertModal
         id="delete-staff-modal"
         color="alert"
-        action={() => {}}
+        action={() =>
+          formData.loginId && handleDeleteStaff(parseInt(formData.loginId))
+        }
         heading="Attention before deleting staff"
-        content="Are you sure you want to delete this staff member?"
+        content={`Are you sure you want to delete ${formData.firstName} ${formData.lastName}? All related clock-in/out records will also be deleted and this action cannot be undone.`}
+      />
+      <AlertModal
+        id="CLOCK_RUNNING_MODAL"
+        color="alert"
+        heading="Cannot Delete Staff"
+        content={modalContent}
+      />
+      <ErrorModal
+        id="ERROR_MODAL"
+        content={modalContent}
+        heading="Error happened when processing request"
+      />
+      <SuccessModal
+        id="SUCCESS_MODAL"
+        content={modalContent}
+        heading="Request processed successfully"
       />
       <ManagerLayout tabTitle="Staff Manager">
         <ToolBarContainer>
@@ -172,12 +230,17 @@ export default function StaffManager() {
           </NewVersionButton>
         </ToolBarContainer>
         <TableContainer>
+          <div className="flex justify-between">
+            <p className="ml-4 text-xs text-mocha-50">
+              Total staff: {staffList.length}
+            </p>
+          </div>
           <StaffTable
             staffList={staffList}
             isFetching={staffListIsFetching}
             onEditStaff={openFormModal}
             onDeleteStaff={openDeleteModal}
-            onViewClockHistory={() => {}}
+            onViewClockHistory={handleViewClockHistory}
           />
         </TableContainer>
       </ManagerLayout>

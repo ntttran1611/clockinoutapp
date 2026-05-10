@@ -16,7 +16,7 @@ import {
 import { startOfWeek, endOfWeek } from "../lib";
 
 import {
-  useStaffInitialization,
+  useStaffInitialisation,
   useTableClockData,
   useTodayClockData,
   useAutoClockOutMutation,
@@ -47,7 +47,7 @@ export default function Dashboard() {
   const [searchEndDate, setEndDate] = useState(defaultEndOfWeek);
   const [clockNote, setClockNote] = useState("");
   //Staff
-  const { tempStaff, refetchStaff, isStaffLoading } = useStaffInitialization();
+  const { tempStaff, refetchStaff, isStaffLoading } = useStaffInitialisation();
   const updateStaffMutation = useUpdateStaffMutation();
   const updateStaffClockStatusMutation = useStaffUpdateClockStatusMutation();
   //Clock Data

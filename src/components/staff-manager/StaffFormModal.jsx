@@ -4,38 +4,80 @@ import {
   NewVersionButton,
   Toggle,
   Checkbox,
+  FormErrorMessage,
 } from "../../components";
-import { formatPayRateDisplay, validateAndCorrectPayRate } from "../../lib";
-import { useState } from "react";
+import {
+  formatPayRateDisplay,
+  validateAndCorrectPayRate,
+  validateString,
+  formatID,
+} from "../../lib";
+import { useState, useEffect } from "react";
 
 export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
+  const [disableConfirmation, setDisableConfirmation] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    // Enable confirmation if first name and last name are valid
+    if (
+      validateString(formData.firstName) &&
+      validateString(formData.lastName)
+    ) {
+      setDisableConfirmation(false);
+      setErrorMessage("");
+    }
+  }, [formData.firstName, formData.lastName]);
+
   return (
     <FormModal
       id="staff-form-modal"
       heading={
-        formData.loginId ? `Edit Staff #${formData.loginId}` : "Add New Staff"
+        formData.loginId
+          ? `Edit Staff #${formatID(formData.loginId)}`
+          : "Add New Staff"
       }
-      action={onSubmit}
+      action={() => {
+        onSubmit();
+        setErrorMessage("");
+      }}
       color="sky-mist-100"
-      onClose={onClose}
+      onClose={() => {
+        onClose();
+        setErrorMessage("");
+      }}
+      disableConfirmation={disableConfirmation}
     >
       <section className="flex flex-col gap-3 py-5">
+        <FormErrorMessage message={errorMessage} />
         <div className="flex gap-4">
           <FormInput
             label="First Name"
             name="firstName"
             value={formData.firstName}
-            onChange={(e) =>
-              setFormData({ ...formData, firstName: e.target.value })
-            }
+            onChange={(e) => {
+              if (!validateString(e.target.value)) {
+                setErrorMessage("First name cannot be empty.");
+                setDisableConfirmation(true);
+              } else {
+                setErrorMessage("");
+              }
+              setFormData({ ...formData, firstName: e.target.value });
+            }}
           />
           <FormInput
             label="Last Name"
             name="lastName"
             value={formData.lastName}
-            onChange={(e) =>
-              setFormData({ ...formData, lastName: e.target.value })
-            }
+            onChange={(e) => {
+              if (!validateString(e.target.value)) {
+                setErrorMessage("Last name cannot be empty.");
+                setDisableConfirmation(true);
+              } else {
+                setErrorMessage("");
+              }
+              setFormData({ ...formData, lastName: e.target.value });
+            }}
           />
         </div>
         <div className="flex gap-4">
