@@ -16,6 +16,7 @@ import {
   NewVersionButton,
   LoadingSpinner,
   TableContainer,
+  PayrollSummaryModal,
 } from "../components";
 import { ClockHistoryTable } from "../components/staffdashboard";
 import { useUser } from "../context/UserContext";
@@ -33,8 +34,10 @@ import {
   formatDecimal,
   getHourDiff,
   exportClockTableToExcel,
+  returnPayrollSummary,
 } from "../lib";
 import { Select } from "../components/Select.jsx";
+import { BiExport } from "react-icons/bi";
 
 dayjs.extend(isoWeek);
 
@@ -51,6 +54,7 @@ export default function ClockManager() {
   const [selectedStaffId, setSelectedStaffId] = useState(initialStaffId || "");
   const [selectedClock, setSelectedClock] = useState({});
   const [enableReviewClock, setEnableReviewClock] = useState(false);
+  const [payrollSummary, setPayrollSummary] = useState(null);
 
   // data queries
   const { tableClockList, isFetching, refetchTableClockList } =
@@ -95,6 +99,13 @@ export default function ClockManager() {
     }
   }, [staffList, initialStaffId]);
 
+  useEffect(() => {
+    if (payrollSummary) {
+      //console.log(payrollSummary);
+      document.querySelector("#PAYROLL_SUMMARY_MODAL").showModal();
+    }
+  }, [payrollSummary]);
+
   const handleDateChange = (e) => {
     const { id, value } = e.target;
     id === "startDate"
@@ -132,8 +143,23 @@ export default function ClockManager() {
     setEnableReviewClock(false);
   };
 
+  const handleReportPayroll = async () => {
+    const payrollResult = await returnPayrollSummary(staffList, dateRange);
+
+    if (!payrollResult || payrollResult.length === 0) {
+      alert("No payroll data available or violated date");
+      return;
+    }
+    setPayrollSummary(payrollResult);
+  };
+
   return !staffListIsFetching ? (
     <>
+      <PayrollSummaryModal
+        dateRange={dateRange}
+        onSubmit={() => alert("exported to excel")}
+        list={payrollSummary}
+      />
       <AlertModal
         id="alertModal"
         action={exportExcel}
@@ -182,12 +208,8 @@ export default function ClockManager() {
               onChange={(e) => setSelectedStaffId(e.target.value)}
             />
           </div>
-          <NewVersionButton
-            disabled={!canCalculate}
-            onClick={handleExportClick}
-            intent="secondary"
-          >
-            Export Excel
+          <NewVersionButton onClick={handleReportPayroll}>
+            Payroll Report for All Staff
           </NewVersionButton>
         </ToolBarContainer>
         {canCalculate && (
@@ -202,16 +224,30 @@ export default function ClockManager() {
           />
         )}
         <TableContainer>
-          <div className="flex justify-between">
-            <p className="ml-4 text-xs text-mocha-50">
-              Date range: {formatDate(dateRange.start)} -
-              {formatDate(dateRange.end)}
-            </p>
-            <p className="ml-4 text-xs text-mocha-50">
-              Staff:{" "}
-              {selectedStaff &&
-                `${selectedStaff.firstName} ${selectedStaff.lastName}`}
-            </p>
+          <div className="flex justify-between items-center">
+            <div className="flex-1 flex flex-col gap-1">
+              <p className="ml-4 text-xs text-mocha-50">
+                Date range: {formatDate(dateRange.start)} -
+                {formatDate(dateRange.end)}
+              </p>
+              <p className="ml-4 text-xs text-mocha-50">
+                Staff:{" "}
+                {selectedStaff &&
+                  `${selectedStaff.firstName} ${selectedStaff.lastName}`}
+              </p>
+            </div>
+            {canCalculate && (
+              <div className="tooltip" data-tip="Export an Excel file">
+                <NewVersionButton
+                  intent="icon"
+                  size="icon"
+                  className="bg-sky-mist-100 hover:bg-sky-mist-80"
+                  onClick={handleExportClick}
+                >
+                  <BiExport />
+                </NewVersionButton>
+              </div>
+            )}
           </div>
 
           <ClockHistoryTable

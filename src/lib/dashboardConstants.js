@@ -57,3 +57,11 @@ export const STAFF_TABLE_HEADERS = [
   "Availability",
   "Functions",
 ];
+
+// Payroll Summary Headers
+export const PAYROLL_TABLE_HEADERS = [
+  "Staff name",
+  "Pay rate",
+  "Total working hours",
+  "Total payable",
+];

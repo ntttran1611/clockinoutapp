@@ -11,7 +11,7 @@ export function Table({
       <table
         className={`table ${isZebra ? "table-zebra" : ""} font-vietnam text-xs text-text-primary table-pin-rows my-5`}
       >
-        <thead className="sticky top-0 bg-white text-light-pink">
+        <thead className="sticky top-0 bg-white text-almond">
           <tr>
             {headers.map((header) => (
               <th key={header}>{header}</th>
