@@ -249,16 +249,17 @@ export default function ClockManager() {
               </div>
             )}
           </div>
-
-          <ClockHistoryTable
-            isAdminControlled={true}
-            tableClockList={tableClockList}
-            isFetching={isFetching}
-            onClick={(clock) => {
-              setSelectedClock(clock);
-              setEnableReviewClock(true);
-            }}
-          />
+          <div className="relative flex-1">
+            <ClockHistoryTable
+              isAdminControlled={true}
+              tableClockList={tableClockList}
+              isFetching={isFetching}
+              onClick={(clock) => {
+                setSelectedClock(clock);
+                setEnableReviewClock(true);
+              }}
+            />
+          </div>
         </TableContainer>
       </ManagerLayout>
     </>

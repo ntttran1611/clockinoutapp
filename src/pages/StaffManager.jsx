@@ -235,13 +235,15 @@ export default function StaffManager() {
               Total staff: {staffList.length}
             </p>
           </div>
-          <StaffTable
-            staffList={staffList}
-            isFetching={staffListIsFetching}
-            onEditStaff={openFormModal}
-            onDeleteStaff={openDeleteModal}
-            onViewClockHistory={handleViewClockHistory}
-          />
+          <div className="relative flex-1">
+            <StaffTable
+              staffList={staffList}
+              isFetching={staffListIsFetching}
+              onEditStaff={openFormModal}
+              onDeleteStaff={openDeleteModal}
+              onViewClockHistory={handleViewClockHistory}
+            />
+          </div>
         </TableContainer>
       </ManagerLayout>
     </>

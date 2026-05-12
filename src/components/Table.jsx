@@ -1,4 +1,6 @@
 import { LoadingSpinner } from "./LoadingSpinner.jsx";
+import { useEffect, useRef } from "react";
+
 export function Table({
   itemList,
   headers,
@@ -7,11 +9,11 @@ export function Table({
   isFetching,
 }) {
   return (
-    <div className="max-h-[300px] overflow-y-auto overflow-x-auto no-scrollbar transition-all duration-500 ease-in-out w-full">
+    <div className="absolute inset-0 overflow-x-auto no-scrollbar">
       <table
-        className={`table ${isZebra ? "table-zebra" : ""} font-vietnam text-xs text-text-primary table-pin-rows my-5`}
+        className={`table ${isZebra ? "table-zebra" : ""} font-vietnam text-xs text-text-primary table-pin-rows`}
       >
-        <thead className="sticky top-0 bg-white text-almond">
+        <thead className="text-almond">
           <tr>
             {headers.map((header) => (
               <th key={header}>{header}</th>

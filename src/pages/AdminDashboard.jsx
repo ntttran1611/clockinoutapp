@@ -124,7 +124,7 @@ export default function AdminDashboard() {
       <div className="flex-1 h-screen hidden lg:block">
         <div className="flex flex-col h-full">
           <NavBar welcomeMessage={`Welcome back, is today a busy day?`} />
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col overflow-hidden">
             <hr className="text-mocha-30" />
             <Outlet />
           </div>
