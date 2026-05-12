@@ -1,11 +1,13 @@
-export function Select({ selectLabel, onChange, list }) {
+import { formatID } from "../lib";
+
+export function Select({ selectLabel, onChange, list, value }) {
   const options = list.map((item) => {
     const labels = {
-      "Staff Member": `${item.firstName} ${item.lastName}`,
+      "Staff Member": `#${formatID(item.id)} - ${item.firstName} ${item.lastName}`,
     };
     return {
       id: item.id,
-      name: labels[selectLabel] || "Unknown",
+      name: labels[selectLabel] ? labels[selectLabel] : item.name,
     };
   });
 
@@ -16,7 +18,7 @@ export function Select({ selectLabel, onChange, list }) {
       </label>
       <select
         id={selectLabel}
-        defaultValue={options[0]?.id || ""}
+        value={value || options[0]?.id || ""}
         onChange={onChange}
         className="select focus:outline-none border-mocha-30 focus:border-mocha-30 max-h-40 overflow-y-auto px-10"
       >

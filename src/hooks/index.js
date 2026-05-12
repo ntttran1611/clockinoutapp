@@ -1,4 +1,4 @@
-export * from "./useStaff.js";
+export * from "./useStaffActions.js";
 export * from "./useClockActions.js";
 export * from "./useClockData.js";
 export * from "./useStaffData.js";

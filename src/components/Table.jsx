@@ -1,39 +1,44 @@
-export default function Table({ itemList }) {
+import { LoadingSpinner } from "./LoadingSpinner.jsx";
+import { useEffect, useRef } from "react";
+
+export function Table({
+  itemList,
+  headers,
+  isZebra = false,
+  children,
+  isFetching,
+}) {
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-zebra">
-        {/* head */}
-        <thead>
+    <div className="absolute inset-0 overflow-x-auto no-scrollbar">
+      <table
+        className={`table ${isZebra ? "table-zebra" : ""} font-vietnam text-xs text-text-primary table-pin-rows`}
+      >
+        <thead className="text-almond">
           <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Job</th>
-            <th>Favorite Color</th>
+            {headers.map((header) => (
+              <th key={header}>{header}</th>
+            ))}
           </tr>
         </thead>
-        <tbody>
-          {/* row 1 */}
-          <tr>
-            <th>1</th>
-            <td>Cy Ganderton</td>
-            <td>Quality Control Specialist</td>
-            <td>Blue</td>
-          </tr>
-          {/* row 2 */}
-          <tr>
-            <th>2</th>
-            <td>Hart Hagerty</td>
-            <td>Desktop Support Technician</td>
-            <td>Purple</td>
-          </tr>
-          {/* row 3 */}
-          <tr>
-            <th>3</th>
-            <td>Brice Swyre</td>
-            <td>Tax Accountant</td>
-            <td>Red</td>
-          </tr>
-        </tbody>
+        {isFetching ? (
+          <tbody>
+            <tr>
+              <td colSpan={headers.length} className="text-center py-8">
+                <LoadingSpinner />
+              </td>
+            </tr>
+          </tbody>
+        ) : itemList && itemList.length > 0 ? (
+          <tbody>{children}</tbody>
+        ) : (
+          <tbody>
+            <tr>
+              <td colSpan={headers.length} className="text-center">
+                No data found
+              </td>
+            </tr>
+          </tbody>
+        )}
       </table>
     </div>
   );
