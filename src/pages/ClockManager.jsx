@@ -33,8 +33,10 @@ import {
   formatTime,
   formatDecimal,
   getHourDiff,
-  exportClockTableToExcel,
+  exportTableToExcel,
   returnPayrollSummary,
+  getFormattedTableClockData,
+  getFormattedPayrollData,
 } from "../lib";
 import { Select } from "../components/Select.jsx";
 import { BiExport } from "react-icons/bi";
@@ -55,6 +57,7 @@ export default function ClockManager() {
   const [selectedClock, setSelectedClock] = useState({});
   const [enableReviewClock, setEnableReviewClock] = useState(false);
   const [payrollSummary, setPayrollSummary] = useState(null);
+  const [errorModalMsg, setErrorModalMsg] = useState("");
 
   // data queries
   const { tableClockList, isFetching, refetchTableClockList } =
@@ -117,20 +120,19 @@ export default function ClockManager() {
     if (hasUnverifiedClocks) {
       document.querySelector("#alertModal").showModal();
     } else {
-      exportExcel();
+      exportClocksExcel();
     }
   };
 
-  const exportExcel = () => {
+  const exportClocksExcel = () => {
     const staffName = selectedStaff
       ? `${selectedStaff.firstName}_${selectedStaff.lastName}`
       : "Unknown";
 
-    exportClockTableToExcel(
-      tableClockList,
-      staffName,
-      dateRange.start,
-      dateRange.end,
+    exportTableToExcel(
+      getFormattedTableClockData(tableClockList),
+      "Clock History",
+      `${staffName}_Clock_History_from_${dateRange.start}_to_${dateRange.end}`,
     );
   };
 
@@ -146,33 +148,52 @@ export default function ClockManager() {
   const handleReportPayroll = async () => {
     const payrollResult = await returnPayrollSummary(staffList, dateRange);
 
-    if (!payrollResult || payrollResult.length === 0) {
-      alert("No payroll data available or violated date");
+    const violatedResults = payrollResult.filter(
+      (result) => result.isDataViolated,
+    );
+
+    if (violatedResults.length > 0) {
+      let message = "Clocks of ";
+      violatedResults.forEach((result, index, array) => {
+        message +=
+          index === array.length - 1 ? `${result.name} ` : `${result.name}, `;
+      });
+      message += " are unfinished or unverified. Please review them first.";
+      setErrorModalMsg(message);
+      document.querySelector("#PAYROLL_ERROR").showModal();
       return;
     }
     setPayrollSummary(payrollResult);
+  };
+
+  const exportPayrollToExcel = () => {
+    if (!payrollSummary) return;
+
+    exportTableToExcel(
+      getFormattedPayrollData(payrollSummary),
+      "Payroll",
+      `Payroll_from_${dateRange.start}_to_${dateRange.end}`,
+    );
   };
 
   return !staffListIsFetching ? (
     <>
       <PayrollSummaryModal
         dateRange={dateRange}
-        onSubmit={() => alert("exported to excel")}
+        onSubmit={exportPayrollToExcel}
         list={payrollSummary}
       />
       <AlertModal
         id="alertModal"
-        action={exportExcel}
+        action={exportClocksExcel}
         heading={"Attention before action"}
         color="mocha"
         content="There are shifts that have not been closed or verified. Would you to like to continue?"
       />
       <ErrorModal
-        id="CALCULATE_WAGE_ERROR"
+        id="PAYROLL_ERROR"
         heading={"Unverified shifts"}
-        content={
-          "There are shifts that have not been closed or verified. Please review them first."
-        }
+        content={errorModalMsg}
       />
 
       {enableReviewClock && (
@@ -231,7 +252,7 @@ export default function ClockManager() {
                 {formatDate(dateRange.end)}
               </p>
               <p className="ml-4 text-xs text-mocha-50">
-                Staff:{" "}
+                Current staff:{" "}
                 {selectedStaff &&
                   `${selectedStaff.firstName} ${selectedStaff.lastName}`}
               </p>

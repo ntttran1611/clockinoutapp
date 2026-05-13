@@ -74,6 +74,8 @@ function getAvailabilityDaysText(availability) {
 
 export function formatPayrollTableRow(payroll) {
   return {
+    id: payroll.id,
+    role: payroll.role,
     staffName: payroll.name,
     payRate: `$${formatDecimal(payroll.payRateCents / 100)}/h`,
     workingHours: formatDecimal(payroll.totalHours),
@@ -104,7 +106,11 @@ export async function returnPayrollSummary(staffList, dateRange) {
 
       // Note: In a map, returning null helps us filter out "violated" rows later
       if (isDataViolated) {
-        return "VIOLATED";
+        return {
+          id: formatID(staff.id),
+          name: `${staff.firstName} ${staff.lastName}`,
+          isDataViolated: true,
+        };
       }
 
       totalWorkingHours = clockList.reduce(
@@ -114,6 +120,8 @@ export async function returnPayrollSummary(staffList, dateRange) {
     }
 
     return {
+      id: formatID(staff.id),
+      role: "Technician",
       name: `${staff.firstName} ${staff.lastName}`,
       totalHours: totalWorkingHours,
       payRateCents: staff.payRateCents,
@@ -125,9 +133,9 @@ export async function returnPayrollSummary(staffList, dateRange) {
 
   // 3. Handle the "Violation" logic
   // If any staff member has violated data, return an empty array to trigger your alert
-  if (results.includes("VIOLATED")) {
-    return [];
-  }
+  //if (results.includes("VIOLATED")) {
+  //return [];
+  //}
 
   return results;
 }
