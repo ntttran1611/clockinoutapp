@@ -11,13 +11,16 @@ export function PayrollSummaryModal({ dateRange = null, onSubmit, list }) {
   ];*/
   return (
     <dialog id="PAYROLL_SUMMARY_MODAL" className="modal">
-      <div className="modal-box w-5/12 max-w-5xl">
+      <div className="modal-box w-8/12 max-w-5xl flex flex-col">
         <h3 className="font-bold text-lg text-sky-mist-100">
           Payroll Summary{" "}
           {dateRange &&
             `(${formatDate(dateRange.start)} - ${formatDate(dateRange.end)})`}
         </h3>
-        <PayrollSummaryTable list={list} />
+        <div className="relative h-96">
+          <PayrollSummaryTable list={list} />
+        </div>
+
         <div className="modal-action ">
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}

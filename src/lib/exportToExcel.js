@@ -1,14 +1,23 @@
 import * as XLSX from "xlsx";
-import { formatClockTableRow, getClockoutMethodColor } from "./dashboardUtils";
+import {
+  formatClockTableRow,
+  formatPayrollTableRow,
+  getClockoutMethodColor,
+} from "./dashboardUtils";
 import { getHourDiff } from "./index";
 import dayjs from "dayjs";
 
-export function exportClockTableToExcel(
-  tableClockList,
-  staffName,
-  startDate,
-  endDate,
-) {
+export function exportTableToExcel(formattedData, sheetName, fileName) {
+  // Create a new workbook
+  const ws = XLSX.utils.json_to_sheet(formattedData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+  // Write the file
+  XLSX.writeFile(wb, `${fileName}.xlsx`);
+}
+
+export function getFormattedTableClockData(tableClockList) {
   // Format the data
   const formattedData = tableClockList.map((clock) => {
     const row = formatClockTableRow(clock, getHourDiff);
@@ -23,14 +32,21 @@ export function exportClockTableToExcel(
     };
   });
 
-  // Create a new workbook
-  const ws = XLSX.utils.json_to_sheet(formattedData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Clock History");
+  return formattedData;
+}
 
-  // Add metadata
-  const fileName = `Clock_History_${staffName}_${dayjs().format("YYYY-MM-DD")}.xlsx`;
+export function getFormattedPayrollData(payrollList) {
+  const formattedData = payrollList.map((payroll) => {
+    const row = formatPayrollTableRow(payroll);
+    return {
+      "Staff Id:": row.id,
+      "Staff Name": row.staffName,
+      Role: row.role,
+      "Total Hours": row.workingHours,
+      "Pay Rate": row.payRate,
+      "Gross Wage": row.payable,
+    };
+  });
 
-  // Write the file
-  XLSX.writeFile(wb, fileName);
+  return formattedData;
 }
