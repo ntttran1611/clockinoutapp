@@ -5,7 +5,7 @@ import {
   updateStaff,
   addStaff,
   deleteStaff,
-} from "../data";
+} from "../api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 //staff list mudations

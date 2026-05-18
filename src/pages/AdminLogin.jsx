@@ -1,36 +1,23 @@
 import { useState } from "react";
 import { InputField, Button, Label, ErrorModal } from "../components";
 import { useNavigate } from "react-router-dom";
-import {
-  auth,
-  setAccessTokenToStorage,
-  setRefreshTokenToStorage,
-} from "../auth";
-import { useUser } from "../context/UserContext";
+import { getProfile, auth } from "../api";
+import {useAuth} from "../context"
 
 export default function AdminLogin() {
-  const { setUser } = useUser();
   const [account, setAccount] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (account.username === "" || account.password === "") {
       setLoginError("Username or password required");
       document.getElementById("adminError").showModal();
     } else {
-      auth(account).then((data) => {
-        if (data) {
-          //console.log(data);
-          setUser(data);
-          setAccessTokenToStorage(data);
-          setRefreshTokenToStorage(data);
-          navigate("/admin/clocks", { state: {} });
-        } else {
-          setLoginError("Invalid username or password");
-          document.getElementById("adminError").showModal();
-        }
-      });
+      const loginUser = await auth(account);
+      if(loginUser){
+        navigate("/admin/clocks", { state: {} });
+      }
     }
   }
   return (

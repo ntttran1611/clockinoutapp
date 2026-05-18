@@ -1,18 +1,50 @@
-import { supabase } from "../api";
+import { supabase } from "../SupabaseClient.js";
 
 export async function auth(loginDetails) {
   try {
+    // 1. Authenticate with Supabase
     const { data, error } = await supabase.auth.signInWithPassword({
       email: loginDetails.email,
       password: loginDetails.password,
     });
 
-    if (error) {
-      return null;
-    }
+    if (error) throw error;
+
+    const { session } = data;
+
+    // 2. Extract tokens
+    const accessToken = session.access_token;
+    const refreshToken = session.refresh_token;
+
+    // 3. Store tokens in document.cookie with security flags (5-min expiry for access token)
+    document.cookie = `sb-access-token=${accessToken}; path=/; max-age=${5 * 60}; SameSite=Lax; Secure`;
+    document.cookie = `sb-refresh-token=${refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax; Secure`;
+
+    return data;
+
+  } catch (err) {
+    return;
+    console.error("Login failed:", error.message);
+  }
+}
+
+export async function getProfile(id){
+  try {
+    const { data, error } = await supabase
+              .from('profiles')
+              .select('user_role')
+              .eq('id', id)
+              .single();
+
+    if(error) {
+      throw error;
+      return;
+    } 
+
     return data;
   } catch (err) {
-    return null;
+    return;
+    console.error("Login failed:", error.message);
   }
 }
 

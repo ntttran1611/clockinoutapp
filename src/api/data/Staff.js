@@ -1,5 +1,5 @@
-import { supabase } from "../api";
-import generateId from "../lib/math";
+import { supabase } from "../SupabaseClient.js";
+import {generateId} from "../../lib";
 
 async function isIdUnique(id) {
   try {

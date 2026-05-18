@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { getTodayClockList, getClockListWithinRange } from "../data";
+import { getTodayClockList, getClockListWithinRange } from "../api";
 import { convertDateObjToISOString } from "../lib";
 import { useQuery } from "@tanstack/react-query";
 

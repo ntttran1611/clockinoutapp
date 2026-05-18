@@ -1,4 +1,4 @@
-import { getStaffList } from "../data";
+import { getStaffList } from "../api";
 import { useNavigate } from "react-router-dom";
 import {
   getStaff,
@@ -6,7 +6,7 @@ import {
   updateStaff,
   addStaff,
   deleteStaff,
-} from "../data";
+} from "../api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useStaffList(staffStatusFilter, searchKeyword) {

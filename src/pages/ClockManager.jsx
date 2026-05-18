@@ -19,8 +19,8 @@ import {
   PayrollSummaryModal,
 } from "../components";
 import { ClockHistoryTable } from "../components/staffdashboard";
-import { useUser } from "../context/UserContext";
-import { getStaffList } from "../data/Staff";
+import { useAuth } from "../context";
+import { getStaffList } from "../api";
 import {
   useStaffList,
   useTableClockData,
@@ -44,7 +44,7 @@ import { BiExport } from "react-icons/bi";
 dayjs.extend(isoWeek);
 
 export default function ClockManager() {
-  const { tempUser } = useUser();
+  const { user, role, loading } = useAuth();
   const [searchParams] = useSearchParams();
   const initialStaffId = searchParams.get("staffId");
 
