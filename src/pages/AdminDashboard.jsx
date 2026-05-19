@@ -6,6 +6,7 @@ import { IoBarChartOutline } from "react-icons/io5";
 import { MdPeopleAlt } from "react-icons/md";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context";
+import { getSession } from "../api";
 
 const TAB_MAP = {
   clocks: 1,
@@ -27,8 +28,8 @@ export default function AdminDashboard() {
   const [tabBgPos, setTabBgPos] = useState(0);
 
   useEffect(() => {
-    if (!user || !role || !role !== "admin") {
-      navigate("/");
+    if(!user || !role || role !== "admin"){
+      navigate("/")
     }
   }, []);
 

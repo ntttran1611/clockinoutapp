@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getProfile, signOut, supabase } from '../api';
+import { getUserRole, getSession, signOut, supabase } from '../api';
 
 const AuthContext = createContext(null);
 
@@ -11,17 +11,18 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       // 1. Get the current authenticated session
-      const { data: { session } } = await supabase.auth.getSession();
+      const session = await getSession();
 
       if (session) {
         const currentUser = session.user;
+
         setUser(currentUser);
 
-        const userProfile = await getProfile(currentUser.id);
+        const userRole = await getUserRole(currentUser.id);
 
         // 2. Fetch the custom ENUM role from the public profiles table
-        if(userProfile) {
-          setRole(userProfile.user_role);
+        if (userRole) {
+          setRole(userRole);
         }
       } else {
         clearAuthCookies();
@@ -54,6 +55,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     signOut();
     setUser(null);
+    setRole(null);
     clearAuthCookies();
   }
 

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { InputField, Button, Label, ErrorModal } from "../components";
 import { useNavigate } from "react-router-dom";
-import { getProfile, auth } from "../api";
-import {useAuth} from "../context"
+import { auth } from "../api";
 
 export default function AdminLogin() {
   const [account, setAccount] = useState({ email: "", password: "" });
@@ -16,6 +15,7 @@ export default function AdminLogin() {
     } else {
       const loginUser = await auth(account);
       if(loginUser){
+        //console.log(loginUser)
         navigate("/admin/clocks", { state: {} });
       }
     }

@@ -28,23 +28,41 @@ export async function auth(loginDetails) {
   }
 }
 
-export async function getProfile(id){
-  try {
-    const { data, error } = await supabase
-              .from('profiles')
-              .select('user_role')
-              .eq('id', id)
-              .single();
+export async function getSession(){
+  try{
+    const { data: { session }, error } = await supabase.auth.getSession();
 
     if(error) {
       throw error;
       return;
-    } 
+    }
 
-    return data;
+    return session;
   } catch (err) {
     return;
     console.error("Login failed:", error.message);
+  }
+}
+ 
+export async function getUserRole(id) {
+  if (!id) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('user_role')
+      .eq('id', '5327ec2e-3ced-4cbf-ae86-b69de7bd3391')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching user role:', error.message ?? error);
+      return null;
+    }
+    return data?.user_role ?? null;
+    
+  } catch (err) {
+    console.error('Error fetching user role:', err);
+    return null;
   }
 }
 
