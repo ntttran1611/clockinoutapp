@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import { SideBar, NavBar } from "../components";
+import { SideBar, NavBar, LoadingSpinner } from "../components";
 import TabLink from "../components/admindashboard/TabLink";
 import { FaRegClock, FaStore } from "react-icons/fa";
 import { IoBarChartOutline } from "react-icons/io5";
 import { MdPeopleAlt } from "react-icons/md";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context";
-import { getSession } from "../api";
 
 const TAB_MAP = {
   clocks: 1,
@@ -28,7 +27,7 @@ export default function AdminDashboard() {
   const [tabBgPos, setTabBgPos] = useState(0);
 
   useEffect(() => {
-    if(!user || !role || role !== "admin"){
+    if(!loading && (!user || !role || role !== "admin")){
       navigate("/")
     }
   }, []);
@@ -70,7 +69,9 @@ export default function AdminDashboard() {
     setTabBgPos(tabSize.height * (tabOrder - 1));
   }, [tabOrder, tabSize.height]);
 
-  return user ? (
+
+
+  return user && role && !loading ? (
     <div className="h-screen flex font-vietnam">
       <SideBar footer="Sweeties Administrator">
         <div id="tabs" className="relative w-full font-light">

@@ -2,24 +2,35 @@ import { useState } from "react";
 import { InputField, Button, Label, ErrorModal } from "../components";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../api";
+import { useAuth } from "../context";
 
 export default function AdminLogin() {
   const [account, setAccount] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add a loading state for the button
+  
   async function handleSubmit(e) {
     e.preventDefault();
-    if (account.username === "" || account.password === "") {
-      setLoginError("Username or password required");
+    if (account.email === "" || account.password === "") {
+      setLoginError("Email or password required");
       document.getElementById("adminError").showModal();
+      return;
     } else {
-      const loginUser = await auth(account);
-      if(loginUser){
-        //console.log(loginUser)
-        navigate("/admin/clocks", { state: {} });
+      setIsSubmitting(true);
+      //Authenticate the account that users type in
+      const session = await auth(account);
+      if (session) {
+        // 2. Safely jump straight to your admin panel route layout. 
+        // The ProtectedRoute guard rail will intercept the request, see that the 
+        // context is populated, and allow passage.
+        navigate("/admin/clocks", { replace: true });
+      } else {
+        throw new Error("Invalid session configuration.");
       }
     }
   }
+  
   return (
     <>
       <ErrorModal heading="Error" content={loginError} id="adminError" />

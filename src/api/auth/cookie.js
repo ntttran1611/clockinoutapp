@@ -19,3 +19,16 @@ export function setAccountToStorage(data) {
 export function removeFromStorage(name) {
   localStorage.removeItem(name);
 }
+
+export function clearAuthCookies() {
+  document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+};
+
+export function setCookie(session, cookieType = 'access') {
+  if(cookieType === 'access') {
+    document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${25 * 60}; SameSite=Lax; Secure`;
+  } else if(cookieType === 'refresh'){
+    document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax; Secure`;
+  }
+} 

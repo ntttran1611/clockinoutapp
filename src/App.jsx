@@ -11,6 +11,7 @@ import StatManager from "./pages/StatManager";
 import { AuthProvider } from "./context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BranchManager from "./pages/BranchManager";
+import { ProtectedRoute } from "./components";
 function App() {
   return (
     <QueryClientProvider client={new QueryClient()}>
@@ -22,13 +23,13 @@ function App() {
               <Route path="adminlogin" element={<AdminLogin />} />
             </Route>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<AdminDashboard />}>
-              <Route index element={<ClockManager />} />
-              <Route path="clocks" element={<ClockManager />} />
-              <Route path="staff" element={<StaffManager />} />
-              <Route path="branches" element={<BranchManager />} />
-              <Route path="analytics" element={<StatManager />} />
-            </Route>
+              <Route path="/admin" element={<AdminDashboard />}>
+                <Route index element={<ClockManager />} />
+                <Route path="clocks" element={<ClockManager />} />
+                <Route path="staff" element={<StaffManager />} />
+                <Route path="branches" element={<BranchManager />} />
+                <Route path="analytics" element={<StatManager />} />
+              </Route>
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>

@@ -12,35 +12,36 @@ export async function auth(loginDetails) {
 
     const { session } = data;
 
-    // 2. Extract tokens
-    const accessToken = session.access_token;
-    const refreshToken = session.refresh_token;
-
-    // 3. Store tokens in document.cookie with security flags (5-min expiry for access token)
-    document.cookie = `sb-access-token=${accessToken}; path=/; max-age=${5 * 60}; SameSite=Lax; Secure`;
-    document.cookie = `sb-refresh-token=${refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax; Secure`;
-
-    return data;
+    return session;
 
   } catch (err) {
-    return;
     console.error("Login failed:", error.message);
+    return;
+    
   }
 }
 
-export async function getSession(){
-  try{
+export async function getSession() {
+  try {
     const { data: { session }, error } = await supabase.auth.getSession();
 
-    if(error) {
+    if (error) {
+      // If the server rejected the refresh token, pass the error to the catch block
       throw error;
-      return;
     }
 
-    return session;
+    // Returns the session object if valid, or null if no one is logged in
+    return session; 
+
   } catch (err) {
-    return;
-    console.error("Login failed:", error.message);
+    console.error("Session verification failed:", err.message);
+
+    // 🚨 Critical Step: If the token is invalid/expired, wipe localStorage clean
+    // so the client doesn't keep trying to send broken tokens.
+    await supabase.auth.signOut();
+
+    // Explicitly return null so your React component knows the user is logged out
+    return null;
   }
 }
  
@@ -51,15 +52,16 @@ export async function getUserRole(id) {
     const { data, error } = await supabase
       .from('profiles')
       .select('user_role')
-      .eq('id', '5327ec2e-3ced-4cbf-ae86-b69de7bd3391')
+      .eq('id', id)
       .maybeSingle();
-
+console.log('working')
     if (error) {
       console.error('Error fetching user role:', error.message ?? error);
       return null;
     }
-    return data?.user_role ?? null;
+
     
+    return data?.user_role ?? null;
   } catch (err) {
     console.error('Error fetching user role:', err);
     return null;
@@ -78,33 +80,5 @@ export async function signOut() {
   }
 }
 
-export async function renewAccessToken() {
-  try {
-    const refreshToken = localStorage.getItem("refresh_token");
 
-    if (!refreshToken) {
-      console.error("No refresh token available");
-      return null;
-    }
 
-    const { data, error } = await supabase.auth.refreshSession({
-      refresh_token: refreshToken,
-    });
-
-    if (error) {
-      console.error("Error refreshing token: ", error);
-      return null;
-    }
-
-    // Update the access token in localStorage
-    if (data.session) {
-      localStorage.setItem("access_token", data.session.access_token);
-      localStorage.setItem("refresh_token", data.session.refresh_token);
-    }
-
-    return data.session.access_token;
-  } catch (err) {
-    console.error("Unexpected error refreshing token: ", err);
-    return null;
-  }
-}

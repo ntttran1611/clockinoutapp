@@ -37,3 +37,5 @@ export * from "./Checkbox.jsx";
 export * from "./clock-manager";
 export * from "./staff-manager";
 export * from "./admindashboard";
+
+export * from './routes'
