@@ -27,12 +27,6 @@ export default function AdminDashboard() {
   const [tabBgPos, setTabBgPos] = useState(0);
 
   useEffect(() => {
-    if(!loading && (!user || !role || role !== "admin")){
-      navigate("/")
-    }
-  }, []);
-
-  useEffect(() => {
     const pathSegments = location.pathname.split("/");
     const currentTab = pathSegments[pathSegments.length - 1];
     if (TAB_MAP[currentTab]) {
@@ -68,8 +62,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     setTabBgPos(tabSize.height * (tabOrder - 1));
   }, [tabOrder, tabSize.height]);
-
-
 
   return user && role && !loading ? (
     <div className="h-screen flex font-vietnam">

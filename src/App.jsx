@@ -23,6 +23,7 @@ function App() {
               <Route path="adminlogin" element={<AdminLogin />} />
             </Route>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route element={<ProtectedRoute allowedRole="admin" />}>
               <Route path="/admin" element={<AdminDashboard />}>
                 <Route index element={<ClockManager />} />
                 <Route path="clocks" element={<ClockManager />} />
@@ -30,6 +31,7 @@ function App() {
                 <Route path="branches" element={<BranchManager />} />
                 <Route path="analytics" element={<StatManager />} />
               </Route>
+            </Route>
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>

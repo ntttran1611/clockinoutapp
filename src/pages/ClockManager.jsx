@@ -176,7 +176,7 @@ export default function ClockManager() {
     );
   };
 
-  return !staffListIsFetching ? (
+  return !staffListIsFetching && user && role && !loading ? (
     <>
       <PayrollSummaryModal
         dateRange={dateRange}

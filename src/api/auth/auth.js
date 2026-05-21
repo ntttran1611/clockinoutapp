@@ -15,7 +15,7 @@ export async function auth(loginDetails) {
     return session;
 
   } catch (err) {
-    console.error("Login failed:", error.message);
+    console.error("Login failed:", err.message);
     return;
     
   }
@@ -54,7 +54,7 @@ export async function getUserRole(id) {
       .select('user_role')
       .eq('id', id)
       .maybeSingle();
-console.log('working')
+      
     if (error) {
       console.error('Error fetching user role:', error.message ?? error);
       return null;

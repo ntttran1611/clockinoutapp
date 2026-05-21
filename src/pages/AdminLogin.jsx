@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { InputField, Button, Label, ErrorModal } from "../components";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../api";
+import { auth, getUserRole, signOut } from "../api";
 import { useAuth } from "../context";
 
 export default function AdminLogin() {
@@ -21,12 +21,18 @@ export default function AdminLogin() {
       //Authenticate the account that users type in
       const session = await auth(account);
       if (session) {
-        // 2. Safely jump straight to your admin panel route layout. 
-        // The ProtectedRoute guard rail will intercept the request, see that the 
-        // context is populated, and allow passage.
-        navigate("/admin/clocks", { replace: true });
+        const userRole = await getUserRole(session.user.id);
+        if(userRole === "admin"){
+          navigate("/admin/clocks", { replace: true });}
+        else {
+          setLoginError("Your are not authorised to access the admin site")
+          document.getElementById("adminError").showModal();
+          await signOut();
+        }
       } else {
-        throw new Error("Invalid session configuration.");
+        setLoginError("Invalid account or unverified email");
+        document.getElementById("adminError").showModal();
+        //throw new Error("Invalid session configuration.");
       }
     }
   }
