@@ -1,5 +1,5 @@
 const LENGTHID = 6;
-export default function generateId() {
+export function generateId() {
   let id = "";
   for (var i = 0; i < LENGTHID; i++) {
     const digit = Math.floor(Math.random() * 10);

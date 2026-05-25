@@ -5,7 +5,7 @@ import {
   getCurrentClock,
   updateClock,
   updateStaff,
-} from "../data";
+} from "../api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useAutoClockOutMutation() {

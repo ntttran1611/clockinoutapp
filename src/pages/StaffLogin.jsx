@@ -9,9 +9,8 @@ import {
   ErrorModal,
 } from "../components";
 import { useNavigate } from "react-router-dom";
-import { getStaff, getStaffList } from "../data";
+import { getStaff, getStaffList, test } from "../api";
 import { regexNumber } from "../lib";
-import { test } from "../api";
 
 //Any code outside a component will run globally (before React components render)
 //console.log("I'm working from the staffLogin");

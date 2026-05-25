@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import { SideBar, NavBar } from "../components";
+import { SideBar, NavBar, LoadingSpinner } from "../components";
 import TabLink from "../components/admindashboard/TabLink";
 import { FaRegClock, FaStore } from "react-icons/fa";
 import { IoBarChartOutline } from "react-icons/io5";
 import { MdPeopleAlt } from "react-icons/md";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useUser, UserProvider } from "../context/UserContext";
-import { getItemFromStorage } from "../auth";
+import { useAuth } from "../context";
 
 const TAB_MAP = {
   clocks: 1,
@@ -19,19 +18,13 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const tabRef = useRef();
-  const { tempUser } = useUser();
+  const { user, role, loading } = useAuth();
   const [tabOrder, setTabOrder] = useState(() => {
     const saved = localStorage.getItem("adminTabOrder");
     return saved ? parseInt(saved) : 1;
   });
   const [tabSize, setTabSize] = useState({ height: 0, width: 0 });
   const [tabBgPos, setTabBgPos] = useState(0);
-
-  useEffect(() => {
-    if (!getItemFromStorage("user")) {
-      navigate("/");
-    }
-  }, []);
 
   useEffect(() => {
     const pathSegments = location.pathname.split("/");
@@ -70,7 +63,7 @@ export default function AdminDashboard() {
     setTabBgPos(tabSize.height * (tabOrder - 1));
   }, [tabOrder, tabSize.height]);
 
-  return tempUser ? (
+  return user && role && !loading ? (
     <div className="h-screen flex font-vietnam">
       <SideBar footer="Sweeties Administrator">
         <div id="tabs" className="relative w-full font-light">

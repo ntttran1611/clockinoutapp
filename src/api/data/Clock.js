@@ -1,4 +1,4 @@
-import { supabase } from "../api";
+import { supabase } from "../SupabaseClient.js";
 import dayjs from "dayjs";
 
 export async function getClockList(staffId) {
