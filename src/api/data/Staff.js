@@ -73,7 +73,8 @@ export async function addStaff(staffData) {
       availability: staffData.availability,
       isClockIn: false,
       currentClockId: null,
-      authId: authUser.id
+      authId: authUser.id,
+      email: authUser.email
     });
 
     if (error) {

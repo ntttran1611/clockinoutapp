@@ -51,7 +51,6 @@ export const TABLE_HEADERS = [
 // Staff Table Headers
 export const STAFF_TABLE_HEADERS = [
   "Status",
-  "Login ID",
   "Name",
   "Pay Rate",
   "Availability",

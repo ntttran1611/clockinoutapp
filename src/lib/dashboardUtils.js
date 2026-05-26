@@ -51,7 +51,6 @@ export function formatClockTableRow(clock, getHourDiff) {
 export function formatStaffTableRow(staff) {
   return {
     status: staff.isActive,
-    loginId: formatID(staff.id),
     name: `${staff.firstName} ${staff.lastName}`,
     payRate: staff.payRateCents
       ? `$${formatDecimal(staff.payRateCents / 100)}/hr`

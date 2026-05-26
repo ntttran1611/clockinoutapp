@@ -35,7 +35,6 @@ export function StaffTable({
                 </div>
               )}
             </td>
-            <td>{row.loginId}</td>
             <td>{row.name}</td>
             <td>{row.payRate}</td>
             <td>{row.availability}</td>

@@ -59,6 +59,7 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
             label="Email"
             name="email"
             value={formData.email}
+            disabled={Boolean(formData.loginId)}
             onChange={(e) => {
               if (!validateString(e.target.value)) {
                 setErrorMessage("Email cannot be empty.");
@@ -70,7 +71,7 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
             }}
           />
           <FormInput
-            label="Password"
+            label="PIN"
             name="password"
             value={formData.password}
             disabled={true}

@@ -19,11 +19,16 @@ import {
   useDeleteStaffMutation,
 } from "../hooks";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { formatDecimal, validateString } from "../lib";
 
+/**
+ * 
+ * TODO
+ * Input validation
+ * Delete staff
+ */
+
 export default function StaffManager() {
-  const navigate = useNavigate();
   const initialFormData = {
     email: "",
     password: "",
@@ -47,6 +52,7 @@ export default function StaffManager() {
   const [formData, setFormData] = useState(initialFormData);
   const [modalContent, setModalContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false)
 
   //staff data query
   const { staffList, staffListIsFetching, refetchStaffList } = useStaffList(
@@ -64,7 +70,7 @@ export default function StaffManager() {
       !staff
         ? initialFormData
         : {
-            email: "test@test.com",
+            email: staff.email,
             password: staff.id,
             loginId: staff.id,
             firstName: staff.firstName,
@@ -188,6 +194,7 @@ export default function StaffManager() {
         onClose={() => setFormData(initialFormData)}
         onSubmit={handleStaffSubmit}
         setFormData={setFormData}
+        isEditing={isEditing}
       />
       <AlertModal
         id="delete-staff-modal"
