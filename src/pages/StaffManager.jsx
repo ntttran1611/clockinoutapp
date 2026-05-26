@@ -24,6 +24,8 @@ import { formatDecimal, validateString } from "../lib";
 export default function StaffManager() {
   const navigate = useNavigate();
   const initialFormData = {
+    email: "",
+    password: "",
     loginId: null,
     firstName: "",
     lastName: "",
@@ -60,6 +62,8 @@ export default function StaffManager() {
       !staff
         ? initialFormData
         : {
+            email: "test@test.com",
+            password: staff.id,
             loginId: staff.id,
             firstName: staff.firstName,
             lastName: staff.lastName,
@@ -71,7 +75,7 @@ export default function StaffManager() {
     document.querySelector("#staff-form-modal").showModal();
   };
 
-  const handleStaffSubmit = async () => {
+  const handleStaffSubmit = async (e) => {
     let payRateCents = 0;
     if (!(formData.payRate === "" || isNaN(formData.payRate))) {
       // Pay rate is already auto-corrected on input change
@@ -96,18 +100,26 @@ export default function StaffManager() {
           ...staffData,
           id: formData.loginId,
         });
+
+        setModalContent("Staff details updated successfully.");
       } else {
-        // Add new staff
-        await addStaffMutation.mutateAsync(staffData);
+        const addResult = await addStaffMutation.mutateAsync({
+          ...staffData,
+          email: formData.email.trim(),
+          password: formData.password,
+        });
+
+        setModalContent(
+          `New staff added successfully.`,
+        );
       }
-      setModalContent(
-        formData.loginId
-          ? "Staff details updated successfully."
-          : "New staff added successfully.",
-      );
+
       document.querySelector("#SUCCESS_MODAL").showModal();
     } catch (err) {
-      setModalContent("An unexpected error occurred. Please try again.");
+      setModalContent(
+        err?.message || "An unexpected error occurred. Please try again.",
+      );
+
       document.querySelector("#ERROR_MODAL").showModal();
     }
 

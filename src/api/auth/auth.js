@@ -21,6 +21,27 @@ export async function auth(loginDetails) {
   }
 }
 
+export async function signUpStaffAccount(email, password) {
+  try {
+    const { data, error } = await supabase.auth.admin.createUser({
+      email: email,
+      password: password,
+      email_confirm: true // Automatically confirms the email without logging them in locally
+    });
+
+    if (error) throw error;
+
+    if (!data?.user?.id) {
+      throw new Error("Staff account was created without a user ID.");
+    }
+
+    return data.user;
+  } catch (err) {
+    console.error("Staff sign-up failed:", err.message ?? err);
+    throw err;
+  }
+}
+
 export async function getSession() {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();

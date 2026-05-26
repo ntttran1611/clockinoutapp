@@ -19,22 +19,26 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    // Enable confirmation if first name and last name are valid
-    if (
+    const hasRequiredFields =
       validateString(formData.firstName) &&
-      validateString(formData.lastName)
-    ) {
+      validateString(formData.lastName) &&
+      validateString(formData.email);
+
+    if (hasRequiredFields) {
       setDisableConfirmation(false);
       setErrorMessage("");
+      return;
     }
-  }, [formData.firstName, formData.lastName]);
+
+    setDisableConfirmation(true);
+  }, [formData.firstName, formData.lastName, formData.email]);
 
   return (
     <FormModal
       id="staff-form-modal"
       heading={
         formData.loginId
-          ? `Edit Staff #${formatID(formData.loginId)}`
+          ? `Edit Staff #${formData.firstName} ${formData.lastName}`
           : "Add New Staff"
       }
       action={() => {
@@ -50,6 +54,29 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
     >
       <section className="flex flex-col gap-3 py-5">
         <FormErrorMessage message={errorMessage} />
+        <div className="flex gap-4">
+          <FormInput
+            label="Email"
+            name="email"
+            value={formData.email}
+            onChange={(e) => {
+              if (!validateString(e.target.value)) {
+                setErrorMessage("Email cannot be empty.");
+                setDisableConfirmation(true);
+              } else {
+                setErrorMessage("");
+              }
+              setFormData({ ...formData, email: e.target.value });
+            }}
+          />
+          <FormInput
+            label="Password"
+            name="password"
+            value={formData.password}
+            disabled={true}
+          />
+        </div>
+        
         <div className="flex gap-4">
           <FormInput
             label="First Name"

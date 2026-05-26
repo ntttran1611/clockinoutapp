@@ -1,5 +1,6 @@
 import { supabase } from "../SupabaseClient.js";
-import {generateId} from "../../lib";
+import { generateId } from "../../lib";
+import { signUpStaffAccount } from "../auth/auth.js";
 
 async function isIdUnique(id) {
   try {
@@ -38,11 +39,33 @@ async function generateUniqueId() {
   throw new Error("Failed to generate a unique ID after multiple attempts");
 }
 
+async function upsertStaffProfile(userId) {
+  const { error } = await supabase
+    .from("profiles")
+    .upsert(
+      {
+        id: userId,
+        user_role: "staff",
+      },
+      { onConflict: "id" },
+    );
+
+  if (error) {
+    console.error("Error updating profile role: ", error);
+    throw error;
+  }
+}
+
 export async function addStaff(staffData) {
   try {
     const uniqueId = await generateUniqueId();
+    const password = staffData.password || uniqueId;
 
-    const { data, error } = await supabase.from("staff").insert({
+    const authUser = await signUpStaffAccount(staffData.email, password);
+    await upsertStaffProfile(authUser.id);
+
+    
+    const { error } = await supabase.from("staff").insert({
       id: uniqueId,
       firstName: staffData.firstName,
       lastName: staffData.lastName,
@@ -55,16 +78,16 @@ export async function addStaff(staffData) {
 
     if (error) {
       console.error("Error adding staff: ", error);
-      alert(error.message);
-      return null;
+      throw error;
     }
 
-    //console.log("Staff added successfully with ID: ", uniqueId);
-    return { ...staffData, id: uniqueId };
+    return {
+      id: uniqueId,
+      authUserId: authUser.id,
+    };
   } catch (err) {
     console.error("Unexpected error adding staff: ", err);
-    alert(err.message);
-    return null;
+    throw err;
   }
 }
 
