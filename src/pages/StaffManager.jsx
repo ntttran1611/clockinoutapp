@@ -8,6 +8,7 @@ import {
   AlertModal,
   ErrorModal,
   SuccessModal,
+  LoadingSpinner,
 } from "../components";
 import { Select } from "../components/Select";
 import { StaffFormModal } from "../components/staff-manager/StaffFormModal";
@@ -45,6 +46,7 @@ export default function StaffManager() {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [formData, setFormData] = useState(initialFormData);
   const [modalContent, setModalContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   //staff data query
   const { staffList, staffListIsFetching, refetchStaffList } = useStaffList(
@@ -76,6 +78,7 @@ export default function StaffManager() {
   };
 
   const handleStaffSubmit = async (e) => {
+    setIsLoading(true);
     let payRateCents = 0;
     if (!(formData.payRate === "" || isNaN(formData.payRate))) {
       // Pay rate is already auto-corrected on input change
@@ -113,13 +116,13 @@ export default function StaffManager() {
           `New staff added successfully.`,
         );
       }
-
+      setIsLoading(false);
       document.querySelector("#SUCCESS_MODAL").showModal();
     } catch (err) {
       setModalContent(
         err?.message || "An unexpected error occurred. Please try again.",
       );
-
+      setIsLoading(false);
       document.querySelector("#ERROR_MODAL").showModal();
     }
 
@@ -176,6 +179,7 @@ export default function StaffManager() {
   useEffect(() => {
     refetchStaffList();
   }, [staffStatusFilter, searchKeyword]);
+  
 
   return (
     <>
@@ -237,8 +241,8 @@ export default function StaffManager() {
               onChange={(e) => setSearchKeyword(e.target.value)}
             />
           </div>
-          <NewVersionButton onClick={() => openFormModal(null)}>
-            Add new staff
+          <NewVersionButton disabled={isLoading ? true : undefined} onClick={() => openFormModal(null)}>
+            {isLoading ? "Adding staff..." : "Add a new member"}
           </NewVersionButton>
         </ToolBarContainer>
         <TableContainer>
@@ -246,6 +250,9 @@ export default function StaffManager() {
             <p className="ml-4 text-xs text-mocha-50">
               Total staff: {staffList.length}
             </p>
+            {isLoading && 
+            <div className="flex items-center"><LoadingSpinner size="sm" /> <p className="ml-4 text-xs text-mocha-50">Processing request...</p></div>}
+            
           </div>
           <div className="relative flex-1">
             <StaffTable

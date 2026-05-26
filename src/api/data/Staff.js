@@ -63,7 +63,6 @@ export async function addStaff(staffData) {
 
     const authUser = await signUpStaffAccount(staffData.email, password);
     await upsertStaffProfile(authUser.id);
-
     
     const { error } = await supabase.from("staff").insert({
       id: uniqueId,
@@ -74,6 +73,7 @@ export async function addStaff(staffData) {
       availability: staffData.availability,
       isClockIn: false,
       currentClockId: null,
+      authId: authUser.id
     });
 
     if (error) {

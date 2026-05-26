@@ -11,7 +11,7 @@ export function ProtectedRoute({ allowedRole }) {
   if (loading) {
     return (
       <LoadingSpinner isFullScreen={true}/>
-    );
+    ); 
   }
 
   // 2. RUN THE GUARD: Only redirect if loading is completely finished and they aren't an admin

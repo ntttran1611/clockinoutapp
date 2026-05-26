@@ -23,10 +23,8 @@ export async function auth(loginDetails) {
 
 export async function signUpStaffAccount(email, password) {
   try {
-    const { data, error } = await supabase.auth.admin.createUser({
-      email: email,
-      password: password,
-      email_confirm: true // Automatically confirms the email without logging them in locally
+    const { data, error } = await supabase.functions.invoke('create-staff', {
+      body: { email, password },
     });
 
     if (error) throw error;
