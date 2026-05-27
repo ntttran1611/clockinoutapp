@@ -19,16 +19,19 @@ import {
   useDeleteStaffMutation,
 } from "../hooks";
 import { useState, useEffect } from "react";
-import { formatDecimal, validateString } from "../lib";
+import { EMAIL_PREFIX, formatDecimal, getEmailWithoutPrefix, validateString } from "../lib";
+import { useNavigate } from "react-router-dom";
 
 /**
  * 
  * TODO
  * Input validation
- * Delete staff
+ * 
+ * Delete staff - new branch
  */
 
 export default function StaffManager() {
+  const navigate = useNavigate()
   const initialFormData = {
     email: "",
     password: "",
@@ -52,7 +55,6 @@ export default function StaffManager() {
   const [formData, setFormData] = useState(initialFormData);
   const [modalContent, setModalContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false)
 
   //staff data query
   const { staffList, staffListIsFetching, refetchStaffList } = useStaffList(
@@ -70,7 +72,7 @@ export default function StaffManager() {
       !staff
         ? initialFormData
         : {
-            email: staff.email,
+            email: getEmailWithoutPrefix(staff.email),
             password: staff.id,
             loginId: staff.id,
             firstName: staff.firstName,
@@ -114,7 +116,7 @@ export default function StaffManager() {
       } else {
         const addResult = await addStaffMutation.mutateAsync({
           ...staffData,
-          email: formData.email.trim(),
+          email: `${formData.email.trim()}${EMAIL_PREFIX}`,
           password: formData.password,
         });
 
@@ -194,7 +196,6 @@ export default function StaffManager() {
         onClose={() => setFormData(initialFormData)}
         onSubmit={handleStaffSubmit}
         setFormData={setFormData}
-        isEditing={isEditing}
       />
       <AlertModal
         id="delete-staff-modal"

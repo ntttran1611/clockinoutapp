@@ -3,7 +3,7 @@ import { formatID } from "../lib";
 export function Select({ selectLabel, onChange, list, value }) {
   const options = list.map((item) => {
     const labels = {
-      "Staff Member": `#${formatID(item.id)} - ${item.firstName} ${item.lastName}`,
+      "Staff Member": `${item.firstName} ${item.lastName}`,
     };
     return {
       id: item.id,

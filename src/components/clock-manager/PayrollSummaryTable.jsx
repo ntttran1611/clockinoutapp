@@ -14,7 +14,6 @@ export function PayrollSummaryTable({ list }) {
           const row = formatPayrollTableRow(payroll);
           return (
             <tr key={row.staffName}>
-              <td>#{row.id}</td>
               <td>{row.staffName}</td>
               <td>{row.role}</td>
               <td>{row.workingHours}</td>

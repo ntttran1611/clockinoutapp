@@ -11,6 +11,7 @@ import {
   validateAndCorrectPayRate,
   validateString,
   formatID,
+  EMAIL_PREFIX,
 } from "../../lib";
 import { useState, useEffect } from "react";
 
@@ -55,7 +56,8 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
       <section className="flex flex-col gap-3 py-5">
         <FormErrorMessage message={errorMessage} />
         <div className="flex gap-4">
-          <FormInput
+          <div className="flex gap-1 items-center">
+            <FormInput
             label="Email"
             name="email"
             value={formData.email}
@@ -70,6 +72,9 @@ export function StaffFormModal({ onClose, onSubmit, formData, setFormData }) {
               setFormData({ ...formData, email: e.target.value });
             }}
           />
+          <p className="text-sm text-mocha-50">{EMAIL_PREFIX}</p>
+          </div>
+          
           <FormInput
             label="PIN"
             name="password"

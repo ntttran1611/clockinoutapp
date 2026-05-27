@@ -60,9 +60,10 @@ export const STAFF_TABLE_HEADERS = [
 // Payroll Summary Headers
 export const PAYROLL_TABLE_HEADERS = [
   "Staff Name",
-  "ID",
   "Role",
   "Total Hours",
   "Pay Rate",
   "Gross Wage",
 ];
+
+export const EMAIL_PREFIX = "@test.com"

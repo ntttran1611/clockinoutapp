@@ -119,7 +119,6 @@ export async function returnPayrollSummary(staffList, dateRange) {
     }
 
     return {
-      id: formatID(staff.id),
       role: "Technician",
       name: `${staff.firstName} ${staff.lastName}`,
       totalHours: totalWorkingHours,
