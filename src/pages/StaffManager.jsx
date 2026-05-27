@@ -200,8 +200,11 @@ export default function StaffManager() {
       <AlertModal
         id="delete-staff-modal"
         color="alert"
-        action={() =>
-          formData.loginId && handleDeleteStaff(parseInt(formData.loginId))
+        action={() => {
+            setIsLoading(true);
+            formData.loginId && handleDeleteStaff(parseInt(formData.loginId)); 
+            setIsLoading(false)
+          }
         }
         heading="Attention before deleting staff"
         content={`Are you sure you want to delete ${formData.firstName} ${formData.lastName}? All related clock-in/out records will also be deleted and this action cannot be undone.`}
