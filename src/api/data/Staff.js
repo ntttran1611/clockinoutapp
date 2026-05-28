@@ -201,65 +201,31 @@ export async function updateStaffClockInStatus(
   }
 }
 
+// All foreign keys on the Staff, Profiles and Clock tables are ON DELETE CASCADE => only need to delete the root user
 export async function deleteStaff(staffId) {
   try {
-    // 1. Check if staff has an active clock running
     const staff = await getStaff(staffId);
-    if (!staff) {
+
+    if(!staff) return {success: false, message: "Staff is not found"};
+
+    if (staff.isClockIn) return { success: false, message: "Clock is running" };
+
+    const { data: authData, error: deleteError } = await supabase.functions.invoke(
+      `create-staff?authUserId=${staff.authId}`, 
+      {
+        method: 'DELETE'
+      }
+    );
+
+    if(deleteError){
       return {
         success: false,
-        errorType: "general",
-        message: "Staff not found",
-      };
+        message: deleteError.message
+      }
     }
 
-    if (staff.isClockIn === true) {
-      return {
-        success: false,
-        errorType: "clockRunning",
-        message: `Cannot delete staff: ${staff.firstName} ${staff.lastName} has an active clock running. Please clock out first.`,
-      };
-    }
-
-    // 2. Clear staff clock history
-    const { error: clockError } = await supabase
-      .from("clock")
-      .delete()
-      .eq("staffId", staffId);
-
-    if (clockError) {
-      return {
-        success: false,
-        errorType: "general",
-        message: "Could not clear staff history: " + clockError.message,
-      };
-    }
-
-    // 3. Now delete the staff member
-    const { error: staffError } = await supabase
-      .from("staff")
-      .delete()
-      .eq("id", staffId);
-
-    if (staffError) {
-      return {
-        success: false,
-        errorType: "general",
-        message: "Could not delete staff: " + staffError.message,
-      };
-    }
-
-    console.log("Staff deleted successfully");
-    return {
-      success: true,
-      errorType: null,
-      message: "Staff deleted successfully",
-    };
+    return { success: true };
   } catch (err) {
-    return {
-      success: false,
-      errorType: "general",
-      message: err.message,
-    };
+    return { success: false, message: err.message };
   }
 }
