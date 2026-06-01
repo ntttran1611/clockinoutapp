@@ -66,4 +66,13 @@ export const PAYROLL_TABLE_HEADERS = [
   "Gross Wage",
 ];
 
+// Branch Table Headers
+export const BRANCH_TABLE_HEADERS = [
+  "Status",
+  "Branch name",
+  "Opening Time",
+  "Closing Time",
+  "Functions",
+]
+
 export const EMAIL_PREFIX = "@test.com"

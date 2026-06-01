@@ -59,6 +59,16 @@ export function formatStaffTableRow(staff) {
   };
 }
 
+export function formatBranchTableRow(branch) {
+  return {
+    id: branch.id,
+    status: branch.isActive,
+    name: branch.name,
+    openingTime: branch.startTime,
+    closingTime: branch.endTime,
+  }
+}
+
 function getAvailabilityDaysText(availability) {
   if (!availability) return "Not set";
   ///console.log("availability: ", availability);
