@@ -41,7 +41,7 @@ export default function BranchManager() {
                     
         </div>
         <div className="relative flex-1">
-          <BranchTable branchList={branchList} isFetching={false} onEditBranch={()=>{}} onDeleteBranch={openDeleteModal}/>
+          <BranchTable branchList={branchList} isFetching={false} onEditBranch={openFormModal} onDeleteBranch={openDeleteModal}/>
         </div>
       </TableContainer>
     </ManagerLayout>
