@@ -2,7 +2,7 @@ import { BRANCH_TABLE_HEADERS, formatBranchTableRow } from "../../lib";
 import { Table } from "../Table";
 import { NewVersionButton } from "../../components";
 
-export function BranchTable({branchList, isFetching, onEditBranch, onDeleteBranch}) {
+export function BranchTable({branchList, isFetching, onEditBranch, onDeleteBranch, isRequestLoading}) {
     return <Table headers={BRANCH_TABLE_HEADERS} isFetching={isFetching} itemList={branchList} isZebra={true}>
         {
             branchList.map((branch) => {
@@ -28,6 +28,7 @@ export function BranchTable({branchList, isFetching, onEditBranch, onDeleteBranc
                                 size="xs"
                                 intent="text"
                                 onClick={() => onEditBranch(branch)}
+                                disabled={isRequestLoading}
                             >
                                 Edit
                             </NewVersionButton>{" "}
@@ -37,6 +38,7 @@ export function BranchTable({branchList, isFetching, onEditBranch, onDeleteBranc
                                 size="xs"
                                 intent="text"
                                 onClick={() => onDeleteBranch(branch)}
+                                disabled={isRequestLoading}
                             >
                                 Delete
                             </NewVersionButton>
