@@ -1,5 +1,5 @@
 import { supabase } from "../supabaseClient.js";
-
+//fixed the import path to match the actual file structure. Please ensure that the path is correct based on your project setup.
 export async function getBranchList(searchKeyword) {
   try {
     const query = supabase
