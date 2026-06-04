@@ -1,7 +1,7 @@
 import { formatDate, formatTime } from "../../lib";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
-import { TimeInput, FormErrorMessage, FormModal } from "../../components";
+import { TimeInput, FormErrorMessage, FormInputModal } from "../../components";
 
 export default function ClockReviewModal({ staff, clock, onConfirm, onClose }) {
   if (!staff || !clock) {
@@ -50,11 +50,10 @@ export default function ClockReviewModal({ staff, clock, onConfirm, onClose }) {
   };
 
   return (
-    <FormModal
+    <FormInputModal
       id="CLOCK_REVIEW_MODAL"
       heading="Unclose Shift Review"
-      color="sky-mist-100"
-      action={handleVerifyEndTime}
+      onSubmit={handleVerifyEndTime}
       onClose={onClose}
     >
       <section className="flex flex-col gap-2 py-3 text-text-primary">
@@ -104,6 +103,6 @@ export default function ClockReviewModal({ staff, clock, onConfirm, onClose }) {
         </section>
         <FormErrorMessage message={errorMessage} />
       </section>
-    </FormModal>
+    </FormInputModal>
   );
 }

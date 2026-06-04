@@ -2,13 +2,6 @@ import { formatDate } from "../../lib";
 import { PayrollSummaryTable } from "./PayrollSummaryTable";
 
 export function PayrollSummaryModal({ dateRange = null, onSubmit, list }) {
-  /*const list = [
-    {
-      name: "Ivy Tran",
-      totalHours: 40,
-      payRateCents: 4500
-    },
-  ];*/
   return (
     <dialog id="PAYROLL_SUMMARY_MODAL" className="modal">
       <div className="modal-box w-8/12 max-w-5xl flex flex-col">

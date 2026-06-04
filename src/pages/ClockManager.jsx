@@ -9,7 +9,6 @@ import {
   ErrorModal,
   FormModal,
   TimeInput,
-  WageSummaryDisplay,
   DateTimeInput,
   ManagerLayout,
   ToolBarContainer,
@@ -17,6 +16,9 @@ import {
   LoadingSpinner,
   TableContainer,
   PayrollSummaryModal,
+  IndividualPayrollModal,
+  MessageModal,
+  AlertBeforeActionModal,
 } from "../components";
 import { ClockHistoryTable } from "../components/staffdashboard";
 import { useAuth } from "../context";
@@ -40,24 +42,35 @@ import {
 } from "../lib";
 import { Select } from "../components/Select.jsx";
 import { BiExport } from "react-icons/bi";
+import { CgFileDocument } from "react-icons/cg";
 
 dayjs.extend(isoWeek);
 
 export default function ClockManager() {
   const { user, role, loading } = useAuth();
+
+  //Get staff ID from URL params if exists (used for redirecting from the staff manager
+  //when clicking on View button to review their clock history)
   const [searchParams] = useSearchParams();
   const initialStaffId = searchParams.get("staffId");
-
   const [dateRange, setDateRange] = useState({
     start: startOfWeek(dayjs()).format("YYYY-MM-DD"),
     end: endOfWeek(dayjs()).format("YYYY-MM-DD"),
   });
-
   const [selectedStaffId, setSelectedStaffId] = useState(initialStaffId || "");
   const [selectedClock, setSelectedClock] = useState({});
   const [enableReviewClock, setEnableReviewClock] = useState(false);
   const [payrollSummary, setPayrollSummary] = useState(null);
-  const [errorModalMsg, setErrorModalMsg] = useState("");
+  const [msgModalContent, setMsgModalContent] = useState({
+    status: "",
+    heading: "",
+    message: "",
+  });
+  const [actionModalContent, setActionModalContent] = useState({
+    action: null,
+    heading: "",
+    message: "",
+  });
 
   // data queries
   const { tableClockList, isFetching, refetchTableClockList } =
@@ -67,11 +80,12 @@ export default function ClockManager() {
   //clock mutation
   const updateClockMutation = useUpdateClockMutation();
 
-  //Derived state
+  //Derived states
+  //check if there is clock data of a staff exists
   const hasData = tableClockList.length > 0;
   const canCalculate = hasData && !isFetching;
   const selectedStaff = useMemo(
-    () => staffList?.find((staff) => staff.id == selectedStaffId) || null,
+    () => staffList?.find((staff) => staff.id == selectedStaffId) || {},
     [selectedStaffId, staffList],
   );
   const hasUnverifiedClocks = useMemo(() => {
@@ -89,12 +103,7 @@ export default function ClockManager() {
     );
   }, [tableClockList]);
 
-  useEffect(() => {
-    const clockReviewModal = document.querySelector("#CLOCK_REVIEW_MODAL");
-    if (!clockReviewModal) return;
-    clockReviewModal.showModal();
-  }, [enableReviewClock]);
-
+  //Effects
   useEffect(() => {
     // Only set to first staff if no initial staff ID was provided
     if (!initialStaffId) {
@@ -118,7 +127,13 @@ export default function ClockManager() {
 
   const handleExportClick = () => {
     if (hasUnverifiedClocks) {
-      document.querySelector("#alertModal").showModal();
+      setActionModalContent({
+        action: exportClocksExcel,
+        heading: "Attention before action",
+        message:
+          "There are shifts that have not been closed or verified. Would you like to continue?",
+      });
+      document.querySelector("#ALERT_BEFORE_ACTION_MODAL").showModal();
     } else {
       exportClocksExcel();
     }
@@ -159,8 +174,15 @@ export default function ClockManager() {
           index === array.length - 1 ? `${result.name} ` : `${result.name}, `;
       });
       message += " are unfinished or unverified. Please review them first.";
-      setErrorModalMsg(message);
-      document.querySelector("#PAYROLL_ERROR").showModal();
+      setMsgModalContent({
+        heading: "Unverified Shifts",
+        message: message,
+        status: "error",
+      });
+      const msgModal = document.querySelector("#MESSAGE_MODAL");
+      if (msgModal) {
+        msgModal.showModal();
+      }
       return;
     }
     setPayrollSummary(payrollResult);
@@ -176,6 +198,11 @@ export default function ClockManager() {
     );
   };
 
+  const showIndividualPayrollModal = () => {
+    if (!selectedStaff || hasUnverifiedClocks) return;
+    document.querySelector("#INDIVIDUAL_PAYROLL_MODAL").showModal();
+  };
+
   return !staffListIsFetching && user && role && !loading ? (
     <>
       <PayrollSummaryModal
@@ -183,30 +210,21 @@ export default function ClockManager() {
         onSubmit={exportPayrollToExcel}
         list={payrollSummary}
       />
-      <AlertModal
-        id="alertModal"
-        action={exportClocksExcel}
-        heading={"Attention before action"}
-        color="mocha"
-        content="There are shifts that have not been closed or verified. Would you to like to continue?"
+      <IndividualPayrollModal
+        staff={selectedStaff}
+        wageSnapshot={{
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+          totalWorkingHours: totalWorkingHours,
+        }}
       />
-      <ErrorModal
-        id="PAYROLL_ERROR"
-        heading={"Unverified shifts"}
-        content={errorModalMsg}
+      <ClockReviewModal
+        staff={selectedStaff}
+        clock={selectedClock}
+        onConfirm={handleConfirmUpdate}
       />
-
-      {enableReviewClock && (
-        <ClockReviewModal
-          staff={selectedStaff}
-          clock={selectedClock}
-          onClose={() => {
-            setEnableReviewClock(false);
-          }}
-          onConfirm={handleConfirmUpdate}
-        />
-      )}
-
+      <AlertBeforeActionModal content={actionModalContent} />
+      <MessageModal content={msgModalContent} />
       <ManagerLayout tabTitle="Clock Manager">
         <ToolBarContainer>
           <div className="flex gap-4 flex-1">
@@ -233,17 +251,6 @@ export default function ClockManager() {
             Payroll Report for All Staff
           </NewVersionButton>
         </ToolBarContainer>
-        {canCalculate && (
-          <WageSummaryDisplay
-            wageSnapshot={{
-              startDate: dateRange.start,
-              endDate: dateRange.end,
-              totalWorkingHours: totalWorkingHours,
-            }}
-            selectedStaff={selectedStaff}
-            hasUnverifiedClocks={hasUnverifiedClocks}
-          />
-        )}
         <TableContainer>
           <div className="flex justify-between items-center">
             <div className="flex-1 flex flex-col gap-1">
@@ -258,15 +265,27 @@ export default function ClockManager() {
               </p>
             </div>
             {canCalculate && (
-              <div className="tooltip" data-tip="Export an Excel file">
-                <NewVersionButton
-                  intent="icon"
-                  size="icon"
-                  className="bg-sky-mist-100 hover:bg-sky-mist-80"
-                  onClick={handleExportClick}
-                >
-                  <BiExport />
-                </NewVersionButton>
+              <div className="flex gap-2 items-center">
+                <div className="tooltip" data-tip="Export an Excel file">
+                  <NewVersionButton
+                    intent="icon"
+                    size="icon"
+                    className="bg-sky-mist-100 hover:bg-sky-mist-80"
+                    onClick={handleExportClick}
+                  >
+                    <BiExport />
+                  </NewVersionButton>
+                </div>
+                <div className="tooltip" data-tip="Payroll Summary">
+                  <NewVersionButton
+                    intent="icon"
+                    size="icon"
+                    className="bg-sky-mist-100 hover:bg-sky-mist-80"
+                    onClick={showIndividualPayrollModal}
+                  >
+                    <CgFileDocument />
+                  </NewVersionButton>
+                </div>
               </div>
             )}
           </div>
@@ -275,9 +294,9 @@ export default function ClockManager() {
               isAdminControlled={true}
               tableClockList={tableClockList}
               isFetching={isFetching}
-              onClick={(clock) => {
+              onAutoGeneratedRowClick={(clock) => {
                 setSelectedClock(clock);
-                setEnableReviewClock(true);
+                document.querySelector("#CLOCK_REVIEW_MODAL").showModal();
               }}
             />
           </div>

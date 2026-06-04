@@ -50,6 +50,34 @@ export function AlertModal({
   );
 }
 
+export function InfoModal({
+  id,
+  heading,
+  children,
+  icon,
+  color = "sky-mist-100",
+}) {
+  return (
+    <dialog id={id} className="modal">
+      <div className="modal-box">
+        <h3
+          className={`font-bold text-md text-${color} flex items-center gap-1 mb-4`}
+        >
+          {icon && <span className="mr-2">{icon}</span>}
+          {heading}
+        </h3>
+        {children}
+        <div className="modal-action">
+          <form method="dialog">
+            {/* if there is a button in form, it will close the modal */}
+            <button className="btn">Close</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+  );
+}
+
 export function ErrorModal({ id, heading, content }) {
   return (
     <dialog id={id} className="modal">

@@ -40,15 +40,13 @@ async function generateUniqueId() {
 }
 
 async function upsertStaffProfile(userId) {
-  const { error } = await supabase
-    .from("profiles")
-    .upsert(
-      {
-        id: userId,
-        user_role: "staff",
-      },
-      { onConflict: "id" },
-    );
+  const { error } = await supabase.from("profiles").upsert(
+    {
+      id: userId,
+      user_role: "staff",
+    },
+    { onConflict: "id" },
+  );
 
   if (error) {
     console.error("Error updating profile role: ", error);
@@ -63,7 +61,7 @@ export async function addStaff(staffData) {
 
     const authUser = await signUpStaffAccount(staffData.email, password);
     await upsertStaffProfile(authUser.id);
-    
+
     const { error } = await supabase.from("staff").insert({
       id: uniqueId,
       firstName: staffData.firstName,
@@ -74,7 +72,7 @@ export async function addStaff(staffData) {
       isClockIn: false,
       currentClockId: null,
       authId: authUser.id,
-      email: authUser.email
+      email: authUser.email,
     });
 
     if (error) {
@@ -89,40 +87,6 @@ export async function addStaff(staffData) {
   } catch (err) {
     console.error("Unexpected error adding staff: ", err);
     throw err;
-  }
-}
-
-export async function getStaffList(staffStatusFilter, searchKeyword) {
-  try {
-    let query = supabase
-      .from("staff")
-      .select()
-      .order("firstName", { ascending: true });
-
-    if (staffStatusFilter && staffStatusFilter !== "all") {
-      if (staffStatusFilter === "active") {
-        query = query.eq("isActive", true);
-      } else if (staffStatusFilter === "inactive") {
-        query = query.eq("isActive", false);
-      }
-    }
-
-    if (searchKeyword && searchKeyword.trim() !== "") {
-      query = query.or(
-        `firstName.ilike.%${searchKeyword}%,lastName.ilike.%${searchKeyword}%`,
-      );
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Error fetching data: ", error);
-      return null;
-    }
-    return data;
-  } catch (err) {
-    console.error("Unexpected error: ", err);
-    return null;
   }
 }
 
@@ -206,26 +170,62 @@ export async function deleteStaff(staffId) {
   try {
     const staff = await getStaff(staffId);
 
-    if(!staff) return {success: false, message: "Staff is not found"};
+    if (!staff) return { success: false, message: "Staff is not found" };
 
     if (staff.isClockIn) return { success: false, message: "Clock is running" };
 
-    const { data: authData, error: deleteError } = await supabase.functions.invoke(
-      `create-staff?authUserId=${staff.authId}`, 
-      {
-        method: 'DELETE'
-      }
-    );
+    const { data: authData, error: deleteError } =
+      await supabase.functions.invoke(
+        `create-staff?authUserId=${staff.authId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
-    if(deleteError){
+    if (deleteError) {
       return {
         success: false,
-        message: deleteError.message
-      }
+        message: deleteError.message,
+      };
     }
 
     return { success: true };
   } catch (err) {
     return { success: false, message: err.message };
+  }
+}
+
+//Staff List
+export async function getStaffList(staffStatusFilter, searchKeyword) {
+  try {
+    let query = supabase
+      .from("staff")
+      .select()
+      .order("firstName", { ascending: true });
+
+    if (staffStatusFilter && staffStatusFilter !== "all") {
+      if (staffStatusFilter === "active") {
+        query = query.eq("isActive", true);
+      } else if (staffStatusFilter === "inactive") {
+        query = query.eq("isActive", false);
+      }
+    }
+
+    if (searchKeyword && searchKeyword.trim() !== "") {
+      query = query.or(
+        `firstName.ilike.%${searchKeyword}%,lastName.ilike.%${searchKeyword}%`,
+      );
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching data: ", error);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.error("Unexpected error: ", err);
+    return null;
   }
 }
