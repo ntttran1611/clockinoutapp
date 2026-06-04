@@ -1,9 +1,9 @@
-export function TimeInput({ label, id, defaultValue, onChange }) {
+export function TimeInput({ label, id, value, onChange }) {
   return (
     <input
       id={id}
       type="time"
-      defaultValue={defaultValue}
+      value={value}
       onChange={onChange}
       className="input focus:outline-none border-mocha-30 focus:border-mocha-30 px-8"
     />

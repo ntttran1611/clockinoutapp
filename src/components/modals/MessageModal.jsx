@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { BiCheckCircle } from "react-icons/bi";
 import { IoAlertCircle } from "react-icons/io5";
 /**
@@ -13,7 +14,7 @@ import { IoAlertCircle } from "react-icons/io5";
  * The modal can be used to inform users of the outcome of an action, such as success or failure.
  * It can also show users important information.
  */
-export default function MessageModal({ content }) {
+export default forwardRef(function MessageModal({ content }, ref) {
   const { heading, message, status } = content;
   const statusColor = () => {
     switch (status) {
@@ -35,7 +36,7 @@ export default function MessageModal({ content }) {
     }
   };
   return (
-    <dialog id="MESSAGE_MODAL" className="modal">
+    <dialog ref={ref} id="MESSAGE_MODAL" className="modal">
       <div className="modal-box font-vietnam">
         <h3
           className={`font-bold text-sm text-${statusColor()} flex items-center gap-1`}
@@ -50,4 +51,4 @@ export default function MessageModal({ content }) {
       </form>
     </dialog>
   );
-}
+});

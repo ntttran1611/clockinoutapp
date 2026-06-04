@@ -1,6 +1,12 @@
 import { formatPayrollTableRow, PAYROLL_TABLE_HEADERS } from "../../lib";
 import { Table } from "../Table";
 
+/**
+ * @description Renders a payroll summary row table using formatted payroll data.
+ * @param {Object} props
+ * @param {Array} props.list - Payroll items to render as table rows.
+ * @returns {JSX.Element} A table containing payroll summary rows.
+ */
 export function PayrollSummaryTable({ list }) {
   return (
     <Table

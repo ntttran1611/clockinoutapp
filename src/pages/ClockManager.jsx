@@ -1,14 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import {
-  AlertModal,
-  Button,
   ClockReviewModal,
-  ErrorModal,
-  FormModal,
-  TimeInput,
   DateTimeInput,
   ManagerLayout,
   ToolBarContainer,
@@ -19,10 +14,11 @@ import {
   IndividualPayrollModal,
   MessageModal,
   AlertBeforeActionModal,
+  ClockHistoryTable,
+  LoadingModal,
 } from "../components";
-import { ClockHistoryTable } from "../components/staffdashboard";
+import { Select } from "../components/Select";
 import { useAuth } from "../context";
-import { getStaffList } from "../api";
 import {
   useStaffList,
   useTableClockData,
@@ -32,19 +28,24 @@ import {
   startOfWeek,
   endOfWeek,
   formatDate,
-  formatTime,
-  formatDecimal,
   getHourDiff,
   exportTableToExcel,
   returnPayrollSummary,
   getFormattedTableClockData,
   getFormattedPayrollData,
 } from "../lib";
-import { Select } from "../components/Select.jsx";
 import { BiExport } from "react-icons/bi";
 import { CgFileDocument } from "react-icons/cg";
 
 dayjs.extend(isoWeek);
+
+/**
+ * TODO:
+ * 1/ Review the functions used in this component
+ * 2/ Restructure the directory if needed
+ * 3/ Optimise the functions if needed
+ * 4/ Review this component again before moving on the next component
+ */
 
 export default function ClockManager() {
   const { user, role, loading } = useAuth();
@@ -53,14 +54,18 @@ export default function ClockManager() {
   //when clicking on View button to review their clock history)
   const [searchParams] = useSearchParams();
   const initialStaffId = searchParams.get("staffId");
+
   const [dateRange, setDateRange] = useState({
     start: startOfWeek(dayjs()).format("YYYY-MM-DD"),
     end: endOfWeek(dayjs()).format("YYYY-MM-DD"),
   });
+
   const [selectedStaffId, setSelectedStaffId] = useState(initialStaffId || "");
   const [selectedClock, setSelectedClock] = useState({});
-  const [enableReviewClock, setEnableReviewClock] = useState(false);
   const [payrollSummary, setPayrollSummary] = useState(null);
+  const [isRequestLoading, setIsRequestLoading] = useState(false);
+
+  //Modal states
   const [msgModalContent, setMsgModalContent] = useState({
     status: "",
     heading: "",
@@ -71,6 +76,13 @@ export default function ClockManager() {
     heading: "",
     message: "",
   });
+
+  const payrollSummaryModalRef = useRef(null);
+  const alertActionModalRef = useRef(null);
+  const messageModalRef = useRef(null);
+  const individualPayrollModalRef = useRef(null);
+  const clockReviewModalRef = useRef(null);
+  const loadingModalRef = useRef(null);
 
   // data queries
   const { tableClockList, isFetching, refetchTableClockList } =
@@ -84,10 +96,13 @@ export default function ClockManager() {
   //check if there is clock data of a staff exists
   const hasData = tableClockList.length > 0;
   const canCalculate = hasData && !isFetching;
+
   const selectedStaff = useMemo(
     () => staffList?.find((staff) => staff.id == selectedStaffId) || {},
     [selectedStaffId, staffList],
   );
+
+  //The below functions takes clocks within the chosen date ranges
   const hasUnverifiedClocks = useMemo(() => {
     return tableClockList?.some(
       (clock) =>
@@ -95,6 +110,7 @@ export default function ClockManager() {
         clock.clockoutMethod === null,
     );
   }, [tableClockList]);
+
   const totalWorkingHours = useMemo(() => {
     const initialValue = 0;
     return tableClockList?.reduce(
@@ -103,7 +119,7 @@ export default function ClockManager() {
     );
   }, [tableClockList]);
 
-  //Effects
+  //Side Effects
   useEffect(() => {
     // Only set to first staff if no initial staff ID was provided
     if (!initialStaffId) {
@@ -111,12 +127,22 @@ export default function ClockManager() {
     }
   }, [staffList, initialStaffId]);
 
+  //Fetching payroll summary is an async function,
+  //so we need to useEffect to trigger the payroll summary modal
+  //after the payroll summary state is set
   useEffect(() => {
     if (payrollSummary) {
-      //console.log(payrollSummary);
-      document.querySelector("#PAYROLL_SUMMARY_MODAL").showModal();
+      payrollSummaryModalRef.current?.showModal();
     }
   }, [payrollSummary]);
+
+  useEffect(() => {
+    if (isRequestLoading) {
+      loadingModalRef.current?.showModal();
+    } else {
+      loadingModalRef.current?.close();
+    }
+  }, [isRequestLoading]);
 
   const handleDateChange = (e) => {
     const { id, value } = e.target;
@@ -125,6 +151,9 @@ export default function ClockManager() {
       : setDateRange({ ...dateRange, end: value });
   };
 
+  //Inform user if there are unverified clocks before exporting and ask for confirmation
+  //The button that triggers this function is only visible when there is clock data within the chosen date range
+  //so no need to check if there is clock data exists or not in this function
   const handleExportClick = () => {
     if (hasUnverifiedClocks) {
       setActionModalContent({
@@ -133,12 +162,13 @@ export default function ClockManager() {
         message:
           "There are shifts that have not been closed or verified. Would you like to continue?",
       });
-      document.querySelector("#ALERT_BEFORE_ACTION_MODAL").showModal();
+      alertActionModalRef.current?.showModal();
     } else {
       exportClocksExcel();
     }
   };
 
+  //The actual function to export clocks data within the chosen date range to excel file
   const exportClocksExcel = () => {
     const staffName = selectedStaff
       ? `${selectedStaff.firstName}_${selectedStaff.lastName}`
@@ -152,12 +182,14 @@ export default function ClockManager() {
   };
 
   const handleConfirmUpdate = async (updatedClock) => {
+    setIsRequestLoading(true);
     try {
       await updateClockMutation.mutateAsync(updatedClock);
     } catch (error) {
       console.error("Error updating clock:", error);
+    } finally {
+      setIsRequestLoading(false);
     }
-    setEnableReviewClock(false);
   };
 
   const handleReportPayroll = async () => {
@@ -179,18 +211,15 @@ export default function ClockManager() {
         message: message,
         status: "error",
       });
-      const msgModal = document.querySelector("#MESSAGE_MODAL");
-      if (msgModal) {
-        msgModal.showModal();
-      }
+      messageModalRef.current?.showModal();
       return;
     }
     setPayrollSummary(payrollResult);
   };
 
+  //The button that triggers this function is only visible when the payroll summary data is ready and there is no unverified clock
+  //So no need to check those conditions in this function
   const exportPayrollToExcel = () => {
-    if (!payrollSummary) return;
-
     exportTableToExcel(
       getFormattedPayrollData(payrollSummary),
       "Payroll",
@@ -199,18 +228,29 @@ export default function ClockManager() {
   };
 
   const showIndividualPayrollModal = () => {
-    if (!selectedStaff || hasUnverifiedClocks) return;
-    document.querySelector("#INDIVIDUAL_PAYROLL_MODAL").showModal();
+    if (hasUnverifiedClocks) {
+      setMsgModalContent({
+        heading: "Unverified Shifts",
+        message:
+          "Please verify all shifts before viewing individual payroll details.",
+        status: "error",
+      });
+      messageModalRef.current?.showModal();
+      return;
+    }
+    individualPayrollModalRef.current?.showModal();
   };
 
   return !staffListIsFetching && user && role && !loading ? (
     <>
       <PayrollSummaryModal
+        ref={payrollSummaryModalRef}
         dateRange={dateRange}
         onSubmit={exportPayrollToExcel}
         list={payrollSummary}
       />
       <IndividualPayrollModal
+        ref={individualPayrollModalRef}
         staff={selectedStaff}
         wageSnapshot={{
           startDate: dateRange.start,
@@ -219,12 +259,17 @@ export default function ClockManager() {
         }}
       />
       <ClockReviewModal
+        ref={clockReviewModalRef}
         staff={selectedStaff}
         clock={selectedClock}
         onConfirm={handleConfirmUpdate}
       />
-      <AlertBeforeActionModal content={actionModalContent} />
-      <MessageModal content={msgModalContent} />
+      <AlertBeforeActionModal
+        ref={alertActionModalRef}
+        content={actionModalContent}
+      />
+      <MessageModal ref={messageModalRef} content={msgModalContent} />
+      <LoadingModal ref={loadingModalRef} />
       <ManagerLayout tabTitle="Clock Manager">
         <ToolBarContainer>
           <div className="flex gap-4 flex-1">
@@ -296,7 +341,7 @@ export default function ClockManager() {
               isFetching={isFetching}
               onAutoGeneratedRowClick={(clock) => {
                 setSelectedClock(clock);
-                document.querySelector("#CLOCK_REVIEW_MODAL").showModal();
+                clockReviewModalRef.current?.showModal();
               }}
             />
           </div>

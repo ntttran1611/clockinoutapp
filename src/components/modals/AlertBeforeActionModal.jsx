@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { IoAlertCircle } from "react-icons/io5";
 /**
  *
@@ -11,10 +12,11 @@ import { IoAlertCircle } from "react-icons/io5";
  * When the user clicks "Confirm", the provided action function is executed.
  * The modal can be used to warn users about potential consequences before they proceed with an action.
  */
-export default function AlertBeforeActionModal({ content }) {
+export default forwardRef(function AlertBeforeActionModal({ content }, ref) {
   const { action, heading, message } = content;
   return (
     <dialog
+      ref={ref}
       id="ALERT_BEFORE_ACTION_MODAL"
       className="modal modal-bottom sm:modal-middle"
     >
@@ -41,4 +43,4 @@ export default function AlertBeforeActionModal({ content }) {
       </div>
     </dialog>
   );
-}
+});

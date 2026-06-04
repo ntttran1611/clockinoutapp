@@ -39,7 +39,7 @@ export * from "./clock-manager";
 export * from "./staff-manager";
 export * from "./branch-manager";
 export * from "./admindashboard";
+export * from "./staffdashboard";
 
 export * from "./routes";
-
 export * from "./modals";

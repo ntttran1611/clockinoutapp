@@ -1,3 +1,5 @@
+import { forwardRef } from "react";
+
 /**
  *
  * @param {string} id - The unique identifier for the modal
@@ -11,16 +13,13 @@
  * This component renders a modal dialog that contains a form or any content passed as children.
  */
 
-export default function FormInputModal({
-  id,
-  heading,
-  onSubmit,
-  children,
-  onClose,
-  disableConfirmation,
-}) {
+export default forwardRef(function FormInputModal(
+  { id, heading, onSubmit, children, onClose, disableConfirmation },
+  ref,
+) {
   return (
     <dialog
+      ref={ref}
       id={id}
       className="modal modal-bottom sm:modal-middle"
       onClose={onClose}
@@ -50,4 +49,4 @@ export default function FormInputModal({
       </div>
     </dialog>
   );
-}
+});

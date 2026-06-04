@@ -1,6 +1,6 @@
 import { formatID } from "../lib";
 
-export function Select({ selectLabel, onChange, list, value }) {
+export function Select({ selectLabel, onChange, list, value, disabled }) {
   const options = list.map((item) => {
     const labels = {
       "Staff Member": `${item.firstName} ${item.lastName}`,
@@ -17,6 +17,7 @@ export function Select({ selectLabel, onChange, list, value }) {
         {selectLabel}
       </label>
       <select
+        disabled={disabled}
         id={selectLabel}
         value={value || options[0]?.id || ""}
         onChange={onChange}

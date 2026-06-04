@@ -1,34 +1,34 @@
+import { forwardRef } from "react";
 import { formatDate } from "../../lib";
+import { InformationModal } from "../modals";
 import { PayrollSummaryTable } from "./PayrollSummaryTable";
 
-export function PayrollSummaryModal({ dateRange = null, onSubmit, list }) {
+/**
+ * @description Displays the payroll summary table inside a reusable information modal.
+ * @param {Object} props
+ * @param {{start: string, end: string}|null} props.dateRange - The selected payroll date range.
+ * @param {Function} props.onSubmit - Callback for the export action.
+ * @param {Array} props.list - The payroll data list to render.
+ * @param {React.Ref} ref - Ref forwarded to the modal dialog.
+ * @returns {JSX.Element} The payroll summary modal.
+ */
+export const PayrollSummaryModal = forwardRef(function PayrollSummaryModal(
+  { dateRange = null, onSubmit, list },
+  ref,
+) {
   return (
-    <dialog id="PAYROLL_SUMMARY_MODAL" className="modal">
-      <div className="modal-box w-8/12 max-w-5xl flex flex-col">
-        <h3 className="font-bold text-lg text-sky-mist-100">
-          Payroll Summary{" "}
-          {dateRange &&
-            `(${formatDate(dateRange.start)} - ${formatDate(dateRange.end)})`}
-        </h3>
-        <div className="relative h-96">
-          <PayrollSummaryTable list={list} />
-        </div>
-
-        <div className="modal-action ">
-          <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
-            <button
-              onClick={onSubmit}
-              className="btn bg-sky-mist-100 text-white font-light font-vietnam mr-2 tracking-wide"
-            >
-              Export to Excel
-            </button>
-            <button className="btn text-text-primary border-none bg-secondary-bg font-light tracking-wide">
-              Close
-            </button>
-          </form>
-        </div>
+    <InformationModal
+      ref={ref}
+      id="PAYROLL_SUMMARY_MODAL"
+      heading={`Payroll Summary ${
+        dateRange
+          ? `(${formatDate(dateRange.start)} - ${formatDate(dateRange.end)})`
+          : ""
+      }`}
+    >
+      <div className="relative h-96">
+        <PayrollSummaryTable list={list} />
       </div>
-    </dialog>
+    </InformationModal>
   );
-}
+});

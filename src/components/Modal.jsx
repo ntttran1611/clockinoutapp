@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { IoAlertCircle } from "react-icons/io5";
 import { NewVersionButton } from "./NewVersionButton";
 import { FaCheckCircle } from "react-icons/fa";
@@ -50,15 +51,12 @@ export function AlertModal({
   );
 }
 
-export function InfoModal({
-  id,
-  heading,
-  children,
-  icon,
-  color = "sky-mist-100",
-}) {
+export const InfoModal = forwardRef(function InfoModal(
+  { id, heading, children, icon, color = "sky-mist-100" },
+  ref,
+) {
   return (
-    <dialog id={id} className="modal">
+    <dialog ref={ref} id={id} className="modal">
       <div className="modal-box">
         <h3
           className={`font-bold text-md text-${color} flex items-center gap-1 mb-4`}
@@ -76,7 +74,7 @@ export function InfoModal({
       </div>
     </dialog>
   );
-}
+});
 
 export function ErrorModal({ id, heading, content }) {
   return (
